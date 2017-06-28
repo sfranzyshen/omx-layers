@@ -39,7 +39,8 @@ function setDefault ()	{
 
 var cache = setDefault();
 
-dbus = "bash "+__dirname+"/dbus.sh ";
+var dbus = "bash "+__dirname+"/dbus.sh ";
+var dbusDest = "";
 
 function checkProgressHandler() {
 	if (progressHandler) {
@@ -48,10 +49,14 @@ function checkProgressHandler() {
 	}
 }
 
+function dbusCommand() {
+	return dbusDest + "bash "+__dirname+"/dbus.sh ";
+}
+
 var playTryCount = 0;
 var play = function() {
 	checkProgressHandler();
-	exec(dbus + 'getplaystatus',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'getplaystatus',function(error, stdout, stderr) {
 		if(error && (playTryCount < 3)){
 			playTryCount++;
 			play();
@@ -71,7 +76,7 @@ var play = function() {
 
 var pauseTryCount = 0;
 var pause = function() {
-	exec(dbus + 'getplaystatus',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'getplaystatus',function(error, stdout, stderr) {
 		if(error && (stopTryCount < 3)){
 			pauseTryCount++;
 			pause();
@@ -91,7 +96,7 @@ var pause = function() {
 
 var stopTryCount = 0;
 var stop = function() {
-	exec(dbus + 'stop',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'stop',function(error, stdout, stderr) {
 		if(error && (stopTryCount < 3)){
 			stopTryCount++;
 			stop();
@@ -108,7 +113,7 @@ var stop = function() {
 var quitTryCount = 0;
 var quit = function() {
 	checkProgressHandler();
-	exec(dbus + 'quit',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'quit',function(error, stdout, stderr) {
 		if(error && (quitTryCount < 3)){
 			quitTryCount++;
 			quit();
@@ -123,7 +128,7 @@ var quit = function() {
 
 var togglePlayTryCount = 0;
 var togglePlay = function() {
-	exec(dbus + 'toggleplay',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'toggleplay',function(error, stdout, stderr) {
 		if(error && (togglePlayTryCount < 4)){
 			togglePlayTryCount++;
 			togglePlay();
@@ -135,7 +140,7 @@ var togglePlay = function() {
 
 var volumeUpTryCount = 0;
 var volumeUp = function() {
-	exec(dbus + 'volumeup',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'volumeup',function(error, stdout, stderr) {
 		if(error && (volumeUpTryCount < 4)){
 			volumeUpTryCount++;
 			volumeUp();
@@ -147,7 +152,7 @@ var volumeUp = function() {
 
 var volumeDownTryCount = 0;
 var volumeDown = function() {
-	exec(dbus + 'volumedown',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'volumedown',function(error, stdout, stderr) {
 		if(error && (volumeDownTryCount < 4)){
 			volumeDownTryCount++;
 			volumeDown();
@@ -159,7 +164,7 @@ var volumeDown = function() {
 
 var seekTryCount = 0;
 var seek = function(offset) { //seek offset in seconds; relative from current position; negative values will cause a jump back;
-	exec(dbus + 'seek '+Math.round(offset*1000000),function(error, stdout, stderr) {
+	exec(dbusCommand() + 'seek '+Math.round(offset*1000000),function(error, stdout, stderr) {
 		if(error && (seekTryCount < 4)){
 			seekTryCount++;
 			seek(offset);
@@ -172,7 +177,7 @@ var seek = function(offset) { //seek offset in seconds; relative from current po
 
 var setPositionTryCount = 0;
 var setPosition = function(position) { //position in seconds from start; //positions larger than the duration will stop the player;
-	exec(dbus + 'setposition '+Math.round(position*1000000),function(error, stdout, stderr) {
+	exec(dbusCommand() + 'setposition '+Math.round(position*1000000),function(error, stdout, stderr) {
 		if(error && (setPositionTryCount < 4)){
 			setPositionTryCount++;
 			setPosition(position);
@@ -185,7 +190,7 @@ var setPosition = function(position) { //position in seconds from start; //posit
 
 var setVolumeTryCount = 0;
 var setVolume = function(volume) { //volume should be set from 0.0 to 1.0; Above 1.0 is depreciated;
-	exec(dbus + 'setvolume '+volume,function(error, stdout, stderr) {
+	exec(dbusCommand() + 'setvolume '+volume,function(error, stdout, stderr) {
 		if(error && (setPositionTryCount < 4)){
 			setVolumeTryCount++;
 			setVolume(volume);
@@ -198,7 +203,7 @@ var setVolume = function(volume) { //volume should be set from 0.0 to 1.0; Above
 
 var toggleSubtitlesTryCount = 0;
 var toggleSubtitles = function() {
-	exec(dbus + 'togglesubtitles',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'togglesubtitles',function(error, stdout, stderr) {
 		if(error && (toggleSubtitlesTryCount < 4)){
 			toggleSubtitlesTryCount++;
 			toggleSubtitles(position);
@@ -210,7 +215,7 @@ var toggleSubtitles = function() {
 
 var hideSubtitlesTryCount = 0;
 var hideSubtitles = function() {
-	exec(dbus + 'hidesubtitles',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'hidesubtitles',function(error, stdout, stderr) {
 		if(error && (hideSubtitlesTryCount < 4)){
 			hideSubtitlesTryCount++;
 			hideSubtitles(position);
@@ -222,7 +227,7 @@ var hideSubtitles = function() {
 
 var showSubtitlesTryCount = 0;
 var showSubtitles = function() {
-	exec(dbus + 'showsubtitles',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'showsubtitles',function(error, stdout, stderr) {
 		if(error && (showSubtitlesTryCount < 4)){
 			showSubtitlesTryCount++;
 			showSubtitles(position);
@@ -234,19 +239,19 @@ var showSubtitles = function() {
 
 var setVisibility = function(visible) {
 	var command = visible ? 'unhidevideo' : 'hidevideo';
-	exec(dbus + command, function(err, stdout, stderr) {
+	exec(dbusCommand() + command, function(err, stdout, stderr) {
 		console.log('result of setVisible:', command, ': error?', err);
 	});
 }
 
 var setAlpha = function(alpha) {
-	exec(dbus + 'setalpha ' + alpha, function(err, stdout, stderr) {
+	exec(dbusCommand() + 'setalpha ' + alpha, function(err, stdout, stderr) {
 		console.log('result of setAlpha; error?', err);
 	});
 }
 
 var update_position = function() {
-	exec(dbus + 'getposition',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'getposition',function(error, stdout, stderr) {
 		if (error) return false;
 		var position = parseInt(stdout);
 		cache.position.value = position;
@@ -256,7 +261,7 @@ var update_position = function() {
 }
 
 var update_status = function() {
-	exec(dbus + 'getplaystatus',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'getplaystatus',function(error, stdout, stderr) {
 		if (error) return false;
 		cache.isPlaying.value = ((stdout.indexOf("Playing")>-1) ? 1 : 0);
  		cache.isPlaying.time = new Date();
@@ -265,7 +270,7 @@ var update_status = function() {
 }
 
 var update_duration = function() {
-	exec(dbus + 'getduration',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'getduration',function(error, stdout, stderr) {
 		if (error) return false;
     	var duration = Math.round(Math.max(0,Math.round(parseInt(stdout.substring((stdout.indexOf("int64")>-1 ? stdout.indexOf("int64")+6:0)))/10000)/100));
 		cache.duration.value = duration;
@@ -275,7 +280,7 @@ var update_duration = function() {
 }
 
 var update_volume = function() {
-	exec(dbus + 'getvolume',function(error, stdout, stderr) {
+	exec(dbusCommand() + 'getvolume',function(error, stdout, stderr) {
 		if (error) return false;
     	var volume = parseFloat(stdout);
 		cache.volume.value = volume;
@@ -403,6 +408,8 @@ var open = function (path, options) {
 
 	args.push('--dbus_name');
 	args.push(dbusName);
+
+	dbusDest = "DBUS_DEST=" + dbusName + " ";
 
   exec(command+' '+args.join(' ')+' < omxpipe',function(error, stdout, stderr) {
 		update_duration();
