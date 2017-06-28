@@ -79,6 +79,11 @@ var play = function() {
 var pauseTryCount = 0;
 var pause = function() {
 	exec(dbusCommand('getplaystatus'), function(error, stdout, stderr) {
+		if (error) {
+			console.log('getplaystatus error:', error);
+		} else {
+			console.log('getplaystatus result:', stdout);
+		}
 		if(error && (stopTryCount < 3)){
 			pauseTryCount++;
 			pause();
