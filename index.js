@@ -403,7 +403,7 @@ var open = function (path, options) {
 		args.push('--layer');
 		args.push(settings.layer);
 		dbusName = dbusName + '_layer' + settings.layer;
-		console.info('setup for layered mode; player will be on layer', settings.layer, 'and dbus name will be', dbusName);
+		console.log('setup for layered mode; player will be on layer', settings.layer, 'and dbus name will be', dbusName);
 	}
 
 	args.push('--dbus_name');
