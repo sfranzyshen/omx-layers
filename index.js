@@ -51,6 +51,7 @@ function checkProgressHandler() {
 
 function dbusCommand(command) {
 	let merge = dbusDest + "bash "+__dirname+"/dbus.sh " + command;
+	if (command != 'getplaystatus') { console.log('merge:', merge); }
 	return merge;
 }
 
