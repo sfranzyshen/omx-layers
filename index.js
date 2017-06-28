@@ -49,10 +49,9 @@ function checkProgressHandler() {
 	}
 }
 
-function dbusCommand() {
-	let command = dbusDest + "bash "+__dirname+"/dbus.sh ";
-	console.log('command to be sent to DBUS:', command);
-	return command;
+function dbusCommand(command) {
+	let merge = dbusDest + "bash "+__dirname+"/dbus.sh " + command;
+	return merge;
 }
 
 var playTryCount = 0;
