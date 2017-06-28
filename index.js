@@ -50,7 +50,7 @@ function checkProgressHandler() {
 }
 
 function dbusCommand(command) {
-	let merge = dbusDest + "bash "+__dirname+"/dbus.sh " + command;
+	let merge = 'export DBUS_DEST=' + dBusDest + '; bash -c "' + dbusDest + ' ' +__dirname+'/dbus.sh ' + command + '"';
 	if (command != 'getplaystatus' && command !='getvolume' && command != 'getposition') { console.log('merge:', merge); }
 	return merge;
 }
@@ -416,7 +416,7 @@ var open = function (path, options) {
 	args.push('--dbus_name');
 	args.push(dbusName);
 
-	dbusDest = "DBUS_DEST=" + dbusName + " ";
+	dbusDest = dbusName;
 
   exec(command+' '+args.join(' ')+' < omxpipe',function(error, stdout, stderr) {
 		update_duration();
