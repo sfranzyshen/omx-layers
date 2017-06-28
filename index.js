@@ -50,13 +50,15 @@ function checkProgressHandler() {
 }
 
 function dbusCommand() {
-	return dbusDest + "bash "+__dirname+"/dbus.sh ";
+	let command = dbusDest + "bash "+__dirname+"/dbus.sh ";
+	console.log('command to be sent to DBUS:', command);
+	return command;
 }
 
 var playTryCount = 0;
 var play = function() {
 	checkProgressHandler();
-	exec(dbusCommand() + 'getplaystatus',function(error, stdout, stderr) {
+	exec(dbusCommand('getplaystatus'), function(error, stdout, stderr) {
 		if(error && (playTryCount < 3)){
 			playTryCount++;
 			play();
@@ -76,7 +78,7 @@ var play = function() {
 
 var pauseTryCount = 0;
 var pause = function() {
-	exec(dbusCommand() + 'getplaystatus',function(error, stdout, stderr) {
+	exec(dbusCommand('getplaystatus'), function(error, stdout, stderr) {
 		if(error && (stopTryCount < 3)){
 			pauseTryCount++;
 			pause();
@@ -96,7 +98,7 @@ var pause = function() {
 
 var stopTryCount = 0;
 var stop = function() {
-	exec(dbusCommand() + 'stop',function(error, stdout, stderr) {
+	exec(dbusCommand('stop'), function(error, stdout, stderr) {
 		if(error && (stopTryCount < 3)){
 			stopTryCount++;
 			stop();
@@ -113,7 +115,7 @@ var stop = function() {
 var quitTryCount = 0;
 var quit = function() {
 	checkProgressHandler();
-	exec(dbusCommand() + 'quit',function(error, stdout, stderr) {
+	exec(dbusCommand('quit'), function(error, stdout, stderr) {
 		if(error && (quitTryCount < 3)){
 			quitTryCount++;
 			quit();
@@ -128,7 +130,7 @@ var quit = function() {
 
 var togglePlayTryCount = 0;
 var togglePlay = function() {
-	exec(dbusCommand() + 'toggleplay',function(error, stdout, stderr) {
+	exec(dbusCommand('togglePlay'), function(error, stdout, stderr) {
 		if(error && (togglePlayTryCount < 4)){
 			togglePlayTryCount++;
 			togglePlay();
