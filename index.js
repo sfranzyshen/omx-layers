@@ -50,7 +50,7 @@ function checkProgressHandler() {
 }
 
 function dbusCommand(command) {
-	let merge = 'export DBUS_DEST=' + dbusDest + '; bash -c "' +__dirname+'/dbus.sh ' + command + '"';
+	let merge = "bash " +__dirname+"/dbus.sh " + dbusDest + " " + command;
 	if (command != 'getplaystatus' && command !='getvolume' && command != 'getposition') { console.log('merge:', merge); }
 	return merge;
 }
