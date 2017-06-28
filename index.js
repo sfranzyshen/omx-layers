@@ -393,8 +393,16 @@ var open = function (path, options) {
 		args.push(''+settings.startAt+'');
 	}
 
+	var dbusName = 'org.mpris.MediaPlayer2.omxplayer'; // default
+	if (settings.layer) {
+		args.push('--layer');
+		args.push(settings.layer);
+		dbusName = dbusName + '_layer' + settings.layer;
+		console.info('setup for layered mode; player will be on layer', settings.layer, 'and dbus name will be', dbusName);
+	}
+
 	args.push('--dbus_name');
-	args.push('org.mpris.MediaPlayer2.omxplayer');
+	args.push(dbusName);
 
   exec(command+' '+args.join(' ')+' < omxpipe',function(error, stdout, stderr) {
 		update_duration();
