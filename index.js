@@ -5,7 +5,7 @@ var path = require('path');
 const DBUS_COMMAND = "bash "+__dirname+"/dbus.sh ";
 const DBUS_DEST_DEFAULT = 'org.mpris.MediaPlayer2.omxplayer';
 
-class OmxInterface {
+class OmxInstance {
 
 	constructor(options) {
 		this.options = options;
@@ -322,7 +322,7 @@ class OmxInterface {
 	}
 
 	open (path, doneCallback) {
-		console.log('OmxInterface open() for layer #', this.layer);
+		console.log('OmxInstance open() for layer #', this.layer);
 		let settings = this.options || {};
 		let args = [];
 		let command = 'omxplayer';
@@ -395,4 +395,4 @@ class OmxInterface {
 
 }
 
-module.exports = OmxInterface;
+module.exports = OmxInstance;
