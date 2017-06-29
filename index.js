@@ -1,7 +1,6 @@
 var exec = require('child_process').exec;
 var path = require('path');
 
-exec('mkfifo omxpipe');
 
 const DBUS_COMMAND = "bash "+__dirname+"/dbus.sh ";
 const DBUS_DEST_DEFAULT = 'org.mpris.MediaPlayer2.omxplayer';
@@ -21,6 +20,8 @@ class OmxInterface {
 			console.log('not layered mode');
 		}
 		console.log('dbus name will be', this.dbusDest);
+
+		exec('mkfifo omxpipe'+this.layer);
 
 		this.defaults = null;
 		this.progressHandler = null;
@@ -375,15 +376,15 @@ class OmxInterface {
 		args.push('--dbus_name');
 		args.push(this.dbusName);
 
-	  exec( command+' '+args.join(' ')+' < omxpipe', (error, stdout, stderr) => {
+	  exec( command+' '+args.join(' ')+' < omxpipe'+this.layer, (error, stdout, stderr) => {
 			this.update_duration();
-			console.log('omxpipe done');
+			console.log('omxpipe done for layer', this.layer);
 			setTimeout( () => {
 				this.checkProgressHandler();
 			}, 1000);
 	  	console.log(stdout);
 	  });
-	  exec(' . > omxpipe');
+	  exec(' . > omxpipe'+this.layer);
 
 	  this.update_duration();
 
