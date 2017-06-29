@@ -314,6 +314,7 @@ class OmxInterface {
 	onProgress (callback) {
 		console.log('add new progress handler for layer', this.layer);
 		this.progressHandler = setInterval( () => {
+			this.update_position();
 			if(this.getCurrentStatus()){
 				callback({position: this.getCurrentPosition(), duration: this.getCurrentDuration()});
 			}
