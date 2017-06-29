@@ -235,7 +235,7 @@ class OmxInterface {
 	update_duration () {
 		exec( this.dbusCommand('getduration'), (error, stdout, stderr) => {
 			if (error) return false;
-	    	var duration = Math.round(Math.max(0,Math.round(parseInt(stdout.substring((stdout.indexOf("int64")>-1 ? stdout.indexOf("int64")+6:0)))/10000)/100));
+    	let duration = Math.round(Math.max(0,Math.round(parseInt(stdout.substring((stdout.indexOf("int64")>-1 ? stdout.indexOf("int64")+6:0)))/10000)/100));
 			this.cache.duration.value = duration;
 			this.cache.duration.time = new Date();
 			this.cache.duration.valid = true;
@@ -267,7 +267,7 @@ class OmxInterface {
 	}
 
 	getCurrentStatus () {
-		if((new Date()-cache.isPlaying.time)/1000 > 2) {
+		if((new Date()-this.cache.isPlaying.time)/1000 > 2) {
 			this.cache.isPlaying.valid = false;
 		}
 		if(!this.cache.isPlaying.valid) {
