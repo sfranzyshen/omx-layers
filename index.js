@@ -374,7 +374,7 @@ class OmxInterface {
 		}
 
 		args.push('--dbus_name');
-		args.push(this.dbusName);
+		args.push(this.dbusDest);
 
 		let finalOpenCommand = command+' '+args.join(' ')+' < omxpipe'+this.layer;
 		console.log('finalOpenCommand:', finalOpenCommand);
