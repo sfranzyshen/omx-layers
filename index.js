@@ -163,6 +163,7 @@ class OmxInterface {
 	}
 
 	togglePlay () {
+		this.update_duration();
 		exec(this.dbusCommand('toggleplay'), (error, stdout, stderr) => {
 			if (error) {
 				console.log('toggleplay error:', error);
