@@ -5,7 +5,9 @@ exec('mkfifo omxpipe');
 
 class OmxInterface {
 
-	constructor() {
+	constructor(options) {
+		this.options = options;
+
 		this.defaults = null;
 		this.progressHandler = null;
 		this.cache = this.setDefault();
@@ -302,9 +304,9 @@ class OmxInterface {
 		}, 1000);
 	}
 
-	open (path, options) {
+	open (path) {
 		console.log('OmxInterface open()');
-		let settings = options || {};
+		let settings = this.options || {};
 		let args = [];
 		let command = 'omxplayer';
 
