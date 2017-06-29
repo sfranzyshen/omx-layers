@@ -3,17 +3,26 @@ var path = require('path');
 
 exec('mkfifo omxpipe');
 
+const DBUS_COMMAND = "bash "+__dirname+"/dbus.sh ";
+const DBUS_DEST_DEFAULT = 'org.mpris.MediaPlayer2.omxplayer';
+
 class OmxInterface {
 
 	constructor(options) {
 		this.options = options;
 
+		if (options && options.layer) {
+			this.dbusDest = DBUS_DEST_DEFAULT + '_layer' + options.layer;
+			console.log('setup for layered mode');
+		} else {
+			this.dbusDest = DBUS_DEST_DEFAULT;
+			console.log('not layered mode');
+		}
+		console.log('dbus name will be', this.dbusDest);
+
 		this.defaults = null;
 		this.progressHandler = null;
 		this.cache = this.setDefault();
-
-		this.dbus = "bash "+__dirname+"/dbus.sh ";
-		this.dbusDest = "";
 
 		this.playTryCount = 0;
 		this.pauseTryCount = 0;
@@ -352,18 +361,13 @@ class OmxInterface {
 			args.push(''+settings.startAt+'');
 		}
 
-		let dbusName = 'org.mpris.MediaPlayer2.omxplayer'; // default
 		if (settings.layer) {
 			args.push('--layer');
 			args.push(settings.layer);
-			dbusName = dbusName + '_layer' + settings.layer;
-			console.log('setup for layered mode; player will be on layer', settings.layer, 'and dbus name will be', dbusName);
 		}
 
 		args.push('--dbus_name');
-		args.push(dbusName);
-
-		this.dbusDest = dbusName;
+		args.push(this.dbusName);
 
 	  exec( command+' '+args.join(' ')+' < omxpipe', (error, stdout, stderr) => {
 			this.update_duration();
