@@ -3,13 +3,29 @@ var path = require('path');
 
 exec('mkfifo omxpipe');
 
-function OmxInterface() {
+class OmxInterface {
 
-	this.defaults = null
-	this.progressHandler = null;
+	constructor() {
+		this.defaults = null;
+		this.progressHandler = null;
+		this.cache = this.setDefault();
 
-	this.setDefault = () => {
-		defaults = {
+		this.dbus = "bash "+__dirname+"/dbus.sh ";
+		this.dbusDest = "";
+
+		this.playTryCount = 0;
+		this.pauseTryCount = 0;
+		this.stopTryCount = 0;
+		this.quitTryCount = 0;
+		this.togglePlayTryCount = 0;
+		this.seekTryCount = 0;
+		this.setPositionTryCount = 0;
+		this.setVolumeTryCount = 0;
+
+	}
+
+	setDefault () {
+		this.defaults = {
 			path:{
 				value:'',
 				time:new Date(),
@@ -37,34 +53,30 @@ function OmxInterface() {
 			}
 		};
 
-		return defaults;
+		return this.defaults;
 	}
 
-	this.cache = this.setDefault();
 
-	this.dbus = "bash "+__dirname+"/dbus.sh ";
-	this.dbusDest = "";
-
-	this.checkProgressHandler = () => {
+	checkProgressHandler() {
 		if (this.progressHandler) {
 			clearInterval(this.progressHandler);
 			console.log('progressHandler cancelled');
 		}
 	}
 
-	this.dbusCommand = (command) => {
+	dbusCommand (command)  {
 		let merge = "bash " +__dirname+"/dbus.sh " + this.dbusDest + " " + command;
 		if (command != 'getplaystatus' && command !='getvolume' && command != 'getposition') { console.log('merge:', merge); }
 		return merge;
 	}
 
-	this.playTryCount = 0;
-	this.play = () => {
-		checkProgressHandler();
-		exec(this.dbusCommand('getplaystatus'), function(error, stdout, stderr) {
+
+	play () {
+		this.checkProgressHandler();
+		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
 			if(error && (this.playTryCount < 3)){
 				this.playTryCount++;
-				play();
+				this.play();
 			} else if(error) {
 				this.playTryCount = 0;
 			} else {
@@ -79,8 +91,7 @@ function OmxInterface() {
 		});
 	}
 
-	this.pauseTryCount = 0;
-	this.pause = () => {
+	pause () {
 		exec(this.dbusCommand('getplaystatus'), function(error, stdout, stderr) {
 			if (error) {
 				console.log('getplaystatus error:', error);
@@ -104,8 +115,7 @@ function OmxInterface() {
 		});
 	}
 
-	this.stopTryCount = 0;
-	this.stop = () => {
+	stop () {
 		exec(this.dbusCommand('stop'), function(error, stdout, stderr) {
 			if(error && (this.stopTryCount < 3)){
 				this.stopTryCount++;
@@ -120,8 +130,7 @@ function OmxInterface() {
 		this.checkProgressHandler();
 	}
 
-	this.quitTryCount = 0;
-	this.quit = () => {
+	quit () {
 		this.checkProgressHandler();
 		exec(this.dbusCommand('quit'), function(error, stdout, stderr) {
 			if(error && (this.quitTryCount < 3)){
@@ -136,8 +145,7 @@ function OmxInterface() {
 	  });
 	}
 
-	this.togglePlayTryCount = 0;
-	this.togglePlay = () => {
+	togglePlay () {
 		exec(this.dbusCommand('toggleplay'), function(error, stdout, stderr) {
 			if (error) {
 				console.log('toggleplay error:', error);
@@ -153,8 +161,7 @@ function OmxInterface() {
 	  });
 	}
 
-	this.seekTryCount = 0;
-	this.seek = (offset) => {
+	seek (offset) {
 		//seek offset in seconds; relative from current position; negative values will cause a jump back;
 		exec(this.dbusCommand('seek ' +Math.round(offset*1000000)), function(error, stdout, stderr) {
 			if(error && (seekTryCount < 4)){
@@ -167,8 +174,7 @@ function OmxInterface() {
 	  });
 	}
 
-	this.setPositionTryCount = 0;
-	this.setPosition = (position) => {
+	setPosition (position) {
 		//position in seconds from start; //positions larger than the duration will stop the player;
 		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), function(error, stdout, stderr) {
 			if(error && (setPositionTryCount < 4)){
@@ -181,8 +187,7 @@ function OmxInterface() {
 	  });
 	}
 
-	this.setVolumeTryCount = 0;
-	this.setVolume = (volume) => {
+	setVolume (volume) {
 		//volume should be set from 0.0 to 1.0; Above 1.0 is depreciated;
 		exec(this.dbusCommand('setvolume '+volume), function(error, stdout, stderr) {
 			if(error && (setPositionTryCount < 4)){
@@ -195,20 +200,20 @@ function OmxInterface() {
 	  });
 	}
 
-	this.setVisibility = (visible) => {
+	setVisibility (visible) {
 		let command = visible ? 'unhidevideo' : 'hidevideo';
 		exec(this.dbusCommand(command), function(err, stdout, stderr) {
 			console.log('result of setVisible:', command, ': error?', err);
 		});
 	}
 
-	this.setAlpha = (alpha) => {
+	setAlpha (alpha) {
 		exec(this.dbusCommand('setalpha ' + alpha), function(err, stdout, stderr) {
 			console.log('result of setAlpha; error?', err);
 		});
 	}
 
-	this.update_position = () => {
+	update_position () {
 		exec(this.dbusCommand('getposition'), function(error, stdout, stderr) {
 			if (error) return false;
 			let position = parseInt(stdout);
@@ -218,7 +223,7 @@ function OmxInterface() {
 	  });
 	}
 
-	this.update_status = () => {
+	update_status () {
 		exec(this.dbusCommand('getplaystatus'), function(error, stdout, stderr) {
 			if (error) return false;
 			this.cache.isPlaying.value = ((stdout.indexOf("Playing")>-1) ? 1 : 0);
@@ -227,7 +232,7 @@ function OmxInterface() {
 	  });
 	}
 
-	this.update_duration = () => {
+	update_duration () {
 		exec( this.dbusCommand('getduration'), (error, stdout, stderr) => {
 			if (error) return false;
 	    	var duration = Math.round(Math.max(0,Math.round(parseInt(stdout.substring((stdout.indexOf("int64")>-1 ? stdout.indexOf("int64")+6:0)))/10000)/100));
@@ -237,7 +242,7 @@ function OmxInterface() {
 	  });
 	}
 
-	this.update_volume = () => {
+	update_volume () {
 		exec(this.dbusCommand('getvolume'),function(error, stdout, stderr) {
 			if (error) return false;
     	let volume = parseFloat(stdout);
@@ -247,7 +252,7 @@ function OmxInterface() {
 	  });
 	}
 
-	this.getCurrentPosition = () => {
+	getCurrentPosition () {
 		if((new Date()-this.cache.position.time)/1000 > 2) {
 			this.cache.position.valid = false;
 		}
@@ -261,7 +266,7 @@ function OmxInterface() {
 		}
 	}
 
-	this.getCurrentStatus = () => {
+	getCurrentStatus () {
 		if((new Date()-cache.isPlaying.time)/1000 > 2) {
 			this.cache.isPlaying.valid = false;
 		}
@@ -271,7 +276,7 @@ function OmxInterface() {
 		return this.cache.isPlaying.value;
 	}
 
-	this.getCurrentDuration = () => {
+	getCurrentDuration () {
 		if(this.cache.duration.value <= 0) {
 			this.cache.duration.valid = false;
 		}
@@ -281,14 +286,14 @@ function OmxInterface() {
 		return this.cache.duration.value;
 	}
 
-	this.getCurrentVolume = () => {
+	getCurrentVolume () {
 		if(!this.cache.volume.valid) {
 			this.update_volume();
 		}
 		return this.cache.volume.value;
 	}
 
-	this.onProgress = (callback) => {
+	onProgress (callback) {
 		console.log('add new progress handler')
 		this.progressHandler = setInterval(function(){
 			if(this.getCurrentStatus()){
@@ -297,7 +302,8 @@ function OmxInterface() {
 		},1000);
 	}
 
-	this.open = (path, options) => {
+	open (path, options) {
+		console.log('OmxInterface open()');
 		let settings = options || {};
 		let args = [];
 		let command = 'omxplayer';
@@ -369,7 +375,7 @@ function OmxInterface() {
 
 	  this.update_duration();
 
-	};
+	}
 
 }
 
