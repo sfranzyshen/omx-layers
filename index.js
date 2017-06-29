@@ -120,9 +120,9 @@ class OmxInterface {
 				this.pauseTryCount++;
 				this.pause();
 			} else if(error) {
-				pauseTryCount = 0;
+				this.pauseTryCount = 0;
 			} else {
-				pauseTryCount = 0;
+				this.pauseTryCount = 0;
 				if (stdout.indexOf("Playing")>-1) {
 					this.togglePlay();
 	 				this.cache.isPlaying.value = 0;
@@ -182,11 +182,11 @@ class OmxInterface {
 	seek (offset) {
 		//seek offset in seconds; relative from current position; negative values will cause a jump back;
 		exec(this.dbusCommand('seek ' +Math.round(offset*1000000)), (error, stdout, stderr) => {
-			if(error && (seekTryCount < 4)){
-				seekTryCount++;
+			if(error && (this.seekTryCount < 4)){
+				this.seekTryCount++;
 				this.seek(offset);
 			} else {
-				seekTryCount = 0;
+				this.seekTryCount = 0;
 				this.update_position();
 			}
 	  });
@@ -195,11 +195,11 @@ class OmxInterface {
 	setPosition (position) {
 		//position in seconds from start; //positions larger than the duration will stop the player;
 		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), (error, stdout, stderr) => {
-			if(error && (setPositionTryCount < 4)){
-				setPositionTryCount++;
+			if(error && (this.setPositionTryCount < 4)){
+				this.setPositionTryCount++;
 				this.setPosition(position);
 			} else {
-				setPositionTryCount = 0;
+				this.setPositionTryCount = 0;
 				this.update_position();
 			}
 	  });
@@ -209,10 +209,10 @@ class OmxInterface {
 		//volume should be set from 0.0 to 1.0; Above 1.0 is depreciated;
 		exec(this.dbusCommand('setvolume '+volume), (error, stdout, stderr) => {
 			if(error && (setPositionTryCount < 4)){
-				setVolumeTryCount++;
+				this.setVolumeTryCount++;
 				this.setVolume(volume);
 			} else {
-				setVolumeTryCount = 0;
+				this.setVolumeTryCount = 0;
 				this.update_volume();
 			}
 	  });
