@@ -1,39 +1,72 @@
 
 # omx-layers (Node.js)
-An interface for Node.js allowing you to layer multiple omxplayer instances and control them via D-Bus.
+An interface for Node.js allowing you to layer multiple [omxplayer](https://github.com/popcornmix/omxplayer) instances and control them via D-Bus.
 
-# Example
+# How to Install
 ```
-var omx = require('omx-interface');
+npm install omx-layers
+```
+# Requirements
+Remember that the `omxplayer` only works on the Raspberry Pi (and similar hardware?). Performance is great on the Pi 3.
 
-var options = {
-	audioOutput:'hdmi',
-	blackBackground:true,
-	disableKeys:true,
-	disableOnScreenDisplay:true
-};
+`omxplayer` is installed by default on the "Raspbian with Desktop" version of [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) but if you have installed the "Lite" version (console only) then you might need to install it manually:
+```
+sudo apt-get install omxplayer
+```
 
-omx.open('test.mp4',options); //open file
 
-omx.onProgress(function(track){ //subscribe for track updates (every second while not paused for now)
-	console.log(track.position);
-	console.log(track.duration);
+# Examples
+## Single layer only
+```
+const omx = require('omx-layers');
+
+let player = new omx({
+	audioOutput: 'local',
+	blackBackground: true,
+	disableKeys: true,
+	disableOnScreenDisplay: true,
 });
+```
+Then play a clip like this:
+```
+player.open('myclip.mp4', () => {
+	console.log('playback finished!');
+});
+```
 
-omx.setPosition(60*5); //set position to 5 minutes into the movie
+## Multiple players, multiple layers
+```
+const omx = require('omx-layers');
+let players = [];
+const numPlayers = 2;
+
+for (var i=0; i<numPlayers; i++) {
+	players.push(
+		new omx({
+			audioOutput: 'local',
+			blackBackground: true,
+			disableKeys: true,
+			disableOnScreenDisplay: true,
+			layer: i+1
+		})
+	);
+}
+
+```
+Find the clip with the layer you want, and play:
+```
+// Let's say you wanted to play a clip on layer 2...
+if (player[1].getLayer() == 2) {
+	player[1].open('foreground-clip.mp4');
+}
 ```
 
 # Options
-## general options
-audioOutput:             'hdmi' | 'local' | 'both'
-
-blackBackground:         boolean, true by default
-
-## Communication options
-
-disableKeys:             boolean, false by default (true when using remote)
-
-disableOnScreenDisplay:  boolean, false by default (true when using remote)
+* `audioOutput`: 'hdmi' | 'local' | 'both'
+* `blackBackground`: boolean, true by default
+* `layer`: 1-infinity (2 is probably enough!); if omitted then clips will automatically player on layer 1
+* `disableKeys`: boolean, false by default
+* `disableOnScreenDisplay`:  boolean, false by default
 
 
 # Properties
