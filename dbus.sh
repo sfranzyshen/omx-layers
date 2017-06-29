@@ -39,11 +39,11 @@ getvolume)
   ;;
 
 setposition)
-  dbus-send --print-reply=literal --session --dest=$1 /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.SetPosition objpath:/not/used int64:$2 >/dev/null
+  dbus-send --print-reply=literal --session --dest=$1 /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.SetPosition objpath:/not/used int64:$3 >/dev/null
   ;;
 
 seek)
-  dbus-send --print-reply=literal --session --dest=$1 /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Seek int64:$2 >/dev/null
+  dbus-send --print-reply=literal --session --dest=$1 /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Seek int64:$3 >/dev/null
   ;;
 
 toggleplay)
@@ -59,7 +59,7 @@ quit)
   ;;
 
 setvolume)
-  dbus-send --print-reply=literal --session --dest=$1 /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Volume double:$2 >/dev/null
+  dbus-send --print-reply=literal --session --dest=$1 /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Volume double:$3 >/dev/null
   ;;
 
 volumeup)
@@ -91,7 +91,7 @@ unhidevideo)
   ;;
 
 setalpha)
-	dbus-send --print-reply=literal --session --dest=$1 /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.SetAlpha objpath:/not/used int64:$2 >/dev/null
+	dbus-send --print-reply=literal --session --dest=$1 /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.SetAlpha objpath:/not/used int64:$3 >/dev/null
 	;;
 
 *)
