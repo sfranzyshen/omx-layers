@@ -381,9 +381,7 @@ class OmxInterface {
 	  exec(finalOpenCommand, (error, stdout, stderr) => {
 			this.update_duration();
 			console.log('omxpipe done for layer', this.layer);
-			setTimeout( () => {
-				this.cancelProgressHandlerIfActive();
-			}, 1000);
+  		this.cancelProgressHandlerIfActive();
 	  	console.log(stdout);
 	  });
 	  exec(' . > omxpipe'+this.layer);
