@@ -1,7 +1,7 @@
 {
-  "name": "omx-interface",
-  "version": "1.2.1",
-  "description": "An interface for omxplayer through dbus",
+  "name": "omx-layers",
+  "version": "0.1.0",
+  "description": "Layer multiple omxplayer instances and control them via D-Bus",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,11 +13,7 @@
     "type": "git",
     "url": "https://github.com/diederikfeilzer/node-omx-interface"
   },
-  "dependencies": {
-    "express": "^4.13.4",
-    "jsonfile": "^2.4.0",
-    "socket.io": "^1.4.5"
-  },
+  "dependencies": {},
   "keywords": [
     "omxplayer",
     "raspberry",
@@ -25,5 +21,5 @@
     "interface",
     "gui"
   ],
-  "author": "Diederik Feilzer <diederikfeilzer@gmail.com>"
+  "author": "Stephen Buchanan <webtvmaster@gmail.com>"
 }
