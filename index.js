@@ -13,9 +13,11 @@ class OmxInterface {
 
 		if (options && options.layer) {
 			this.dbusDest = DBUS_DEST_DEFAULT + '_layer' + options.layer;
+			this.layer = options.layer;
 			console.log('setup for layered mode');
 		} else {
 			this.dbusDest = DBUS_DEST_DEFAULT;
+			this.layer = 1;
 			console.log('not layered mode');
 		}
 		console.log('dbus name will be', this.dbusDest);
@@ -33,6 +35,10 @@ class OmxInterface {
 		this.setPositionTryCount = 0;
 		this.setVolumeTryCount = 0;
 
+	}
+
+	getLayer() {
+		return this.layer;
 	}
 
 	setDefault () {
