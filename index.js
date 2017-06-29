@@ -92,7 +92,7 @@ class OmxInterface {
 	}
 
 	pause () {
-		exec(this.dbusCommand('getplaystatus'), function(error, stdout, stderr) {
+		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
 			if (error) {
 				console.log('getplaystatus error:', error);
 			} else {
@@ -116,7 +116,7 @@ class OmxInterface {
 	}
 
 	stop () {
-		exec(this.dbusCommand('stop'), function(error, stdout, stderr) {
+		exec(this.dbusCommand('stop'), (error, stdout, stderr) => {
 			if(error && (this.stopTryCount < 3)){
 				this.stopTryCount++;
 				this.stop();
@@ -132,7 +132,7 @@ class OmxInterface {
 
 	quit () {
 		this.checkProgressHandler();
-		exec(this.dbusCommand('quit'), function(error, stdout, stderr) {
+		exec(this.dbusCommand('quit'), (error, stdout, stderr) => {
 			if(error && (this.quitTryCount < 3)){
 				this.quitTryCount++;
 				this.quit();
@@ -146,7 +146,7 @@ class OmxInterface {
 	}
 
 	togglePlay () {
-		exec(this.dbusCommand('toggleplay'), function(error, stdout, stderr) {
+		exec(this.dbusCommand('toggleplay'), (error, stdout, stderr) => {
 			if (error) {
 				console.log('toggleplay error:', error);
 			} else {
@@ -163,7 +163,7 @@ class OmxInterface {
 
 	seek (offset) {
 		//seek offset in seconds; relative from current position; negative values will cause a jump back;
-		exec(this.dbusCommand('seek ' +Math.round(offset*1000000)), function(error, stdout, stderr) {
+		exec(this.dbusCommand('seek ' +Math.round(offset*1000000)), (error, stdout, stderr) => {
 			if(error && (seekTryCount < 4)){
 				seekTryCount++;
 				this.seek(offset);
@@ -176,7 +176,7 @@ class OmxInterface {
 
 	setPosition (position) {
 		//position in seconds from start; //positions larger than the duration will stop the player;
-		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), function(error, stdout, stderr) {
+		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), (error, stdout, stderr) => {
 			if(error && (setPositionTryCount < 4)){
 				setPositionTryCount++;
 				this.setPosition(position);
@@ -189,7 +189,7 @@ class OmxInterface {
 
 	setVolume (volume) {
 		//volume should be set from 0.0 to 1.0; Above 1.0 is depreciated;
-		exec(this.dbusCommand('setvolume '+volume), function(error, stdout, stderr) {
+		exec(this.dbusCommand('setvolume '+volume), (error, stdout, stderr) => {
 			if(error && (setPositionTryCount < 4)){
 				setVolumeTryCount++;
 				this.setVolume(volume);
@@ -202,19 +202,19 @@ class OmxInterface {
 
 	setVisibility (visible) {
 		let command = visible ? 'unhidevideo' : 'hidevideo';
-		exec(this.dbusCommand(command), function(err, stdout, stderr) {
+		exec(this.dbusCommand(command), (err, stdout, stderr) => {
 			console.log('result of setVisible:', command, ': error?', err);
 		});
 	}
 
 	setAlpha (alpha) {
-		exec(this.dbusCommand('setalpha ' + alpha), function(err, stdout, stderr) {
+		exec(this.dbusCommand('setalpha ' + alpha), (err, stdout, stderr) => {
 			console.log('result of setAlpha; error?', err);
 		});
 	}
 
 	update_position () {
-		exec(this.dbusCommand('getposition'), function(error, stdout, stderr) {
+		exec(this.dbusCommand('getposition'), (error, stdout, stderr) => {
 			if (error) return false;
 			let position = parseInt(stdout);
 			this.cache.position.value = position;
@@ -224,7 +224,7 @@ class OmxInterface {
 	}
 
 	update_status () {
-		exec(this.dbusCommand('getplaystatus'), function(error, stdout, stderr) {
+		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
 			if (error) return false;
 			this.cache.isPlaying.value = ((stdout.indexOf("Playing")>-1) ? 1 : 0);
 	 		this.cache.isPlaying.time = new Date();
@@ -243,7 +243,7 @@ class OmxInterface {
 	}
 
 	update_volume () {
-		exec(this.dbusCommand('getvolume'),function(error, stdout, stderr) {
+		exec(this.dbusCommand('getvolume'), (error, stdout, stderr) => {
 			if (error) return false;
     	let volume = parseFloat(stdout);
 			this.cache.volume.value = volume;
@@ -295,11 +295,11 @@ class OmxInterface {
 
 	onProgress (callback) {
 		console.log('add new progress handler')
-		this.progressHandler = setInterval(function(){
+		this.progressHandler = setInterval( () => {
 			if(this.getCurrentStatus()){
 				callback({position: this.getCurrentPosition(), duration: this.getCurrentDuration()});
 			}
-		},1000);
+		}, 1000);
 	}
 
 	open (path, options) {
