@@ -89,11 +89,11 @@ class OmxInterface {
 	}
 
 
-	play () {
+	resume () {
 		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
 			if(error && (this.playTryCount < 3)){
 				this.playTryCount++;
-				this.play();
+				this.resume();
 			} else if(error) {
 				this.playTryCount = 0;
 			} else {
