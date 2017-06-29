@@ -376,7 +376,10 @@ class OmxInterface {
 		args.push('--dbus_name');
 		args.push(this.dbusName);
 
-	  exec( command+' '+args.join(' ')+' < omxpipe'+this.layer, (error, stdout, stderr) => {
+		let finalOpenCommand = command+' '+args.join(' ')+' < omxpipe'+this.layer;
+		console.log('finalOpenCommand:', finalOpenCommand);
+
+	  exec(finalOpenCommand, (error, stdout, stderr) => {
 			this.update_duration();
 			console.log('omxpipe done for layer', this.layer);
 			setTimeout( () => {
