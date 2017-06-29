@@ -311,7 +311,7 @@ class OmxInterface {
 	}
 
 	onProgress (callback) {
-		console.log('add new progress handler')
+		console.log('add new progress handler for layer', this.layer);
 		this.progressHandler = setInterval( () => {
 			if(this.getCurrentStatus()){
 				callback({position: this.getCurrentPosition(), duration: this.getCurrentDuration()});
@@ -320,7 +320,7 @@ class OmxInterface {
 	}
 
 	open (path) {
-		console.log('OmxInterface open()');
+		console.log('OmxInterface open() for layer #', this.layer);
 		let settings = this.options || {};
 		let args = [];
 		let command = 'omxplayer';
