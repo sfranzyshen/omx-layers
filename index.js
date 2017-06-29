@@ -75,7 +75,7 @@ class OmxInterface {
 	}
 
 
-	checkProgressHandler() {
+	cancelProgressHandlerIfActive() {
 		if (this.progressHandler) {
 			clearInterval(this.progressHandler);
 			console.log('progressHandler cancelled');
@@ -90,7 +90,6 @@ class OmxInterface {
 
 
 	play () {
-		this.checkProgressHandler();
 		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
 			if(error && (this.playTryCount < 3)){
 				this.playTryCount++;
@@ -145,11 +144,11 @@ class OmxInterface {
 				this.cache = this.defaults;
 			}
 		});
-		this.checkProgressHandler();
+		this.cancelProgressHandlerIfActive();
 	}
 
 	quit () {
-		this.checkProgressHandler();
+		this.cancelProgressHandlerIfActive();
 		exec(this.dbusCommand('quit'), (error, stdout, stderr) => {
 			if(error && (this.quitTryCount < 3)){
 				this.quitTryCount++;
@@ -383,7 +382,7 @@ class OmxInterface {
 			this.update_duration();
 			console.log('omxpipe done for layer', this.layer);
 			setTimeout( () => {
-				this.checkProgressHandler();
+				this.cancelProgressHandlerIfActive();
 			}, 1000);
 	  	console.log(stdout);
 	  });
