@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/diederikfeilzer/node-omx-interface"
+    "url": "https://github.com/anselanza/omx-layers"
   },
   "dependencies": {},
   "keywords": [
