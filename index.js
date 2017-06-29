@@ -321,7 +321,7 @@ class OmxInterface {
 		}, 1000);
 	}
 
-	open (path) {
+	open (path, doneCallback) {
 		console.log('OmxInterface open() for layer #', this.layer);
 		let settings = this.options || {};
 		let args = [];
@@ -382,6 +382,7 @@ class OmxInterface {
 
 	  exec(finalOpenCommand, (error, stdout, stderr) => {
 			this.update_duration();
+			doneCallback();
 			console.log('omxpipe done for layer', this.layer);
   		this.cancelProgressHandlerIfActive();
 	  	console.log(stdout);
