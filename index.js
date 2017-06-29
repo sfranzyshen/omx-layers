@@ -278,7 +278,7 @@ class OmxInterface {
 			this.update_position();
 		}
 		if(this.cache.position.value > 0) {
-			return Math.round(Math.max(0,Math.min(Math.round((this.cache.position.value + this.getCurrentStatus()*((new Date())-this.cache.position.time)*1000)/1000000),getCurrentDuration())));
+			return Math.round(Math.max(0,Math.min(Math.round((this.cache.position.value + this.getCurrentStatus()*((new Date())-this.cache.position.time)*1000)/1000000),this.getCurrentDuration())));
 		} else {
 			return 0;
 		}
