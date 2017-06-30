@@ -324,6 +324,11 @@ class OmxInstance {
 			args.push(settings.layer);
 		}
 
+		if (holdMode) {
+			args.push('--alpha');
+			args.push(0);
+		}
+
 		args.push('--dbus_name');
 		args.push(this.dbusDest);
 
