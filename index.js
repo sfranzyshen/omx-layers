@@ -256,19 +256,19 @@ class OmxInstance {
 	waitTillPlaying (callback) {
 		console.log('waitTillPlaying');
 		let countAttempts = 0;
-		let gotPlayStatus = false;
-		while (!gotPlayStatus) {
+		let interval;
+		interval = setInterval( () => {
 			countAttempts++;
 			exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
 				if (error) {
 					console.log('error on getplaystus:', error);
 				} else {
 					console.log('getplaystatus result after', countAttempts, ':', stdout);
-					gotPlayStatus = false;
+					clearInterval(interval);
 					callback();
 				}
 			});
-		}
+		}, 1000);
 	}
 
 	open (path, doneCallback, holdMode) {
