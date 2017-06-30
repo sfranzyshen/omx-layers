@@ -166,6 +166,7 @@ class OmxInstance {
 		this.progressHandler = setInterval( () => {
 			this.getIsPlaying()
 				 .then( (isPlaying) => {
+					 console.log('isPlaying?', isPlaying);
 					 if (isPlaying) {
 						 this.getCurrentPosition()
 						 	.then( (position) => {
