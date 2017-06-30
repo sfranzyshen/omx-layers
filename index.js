@@ -139,13 +139,18 @@ class OmxInstance {
 
 	getDuration () {
 		return new Promise( (resolve, reject) => {
-			exec( this.dbusCommand('getduration'), (error, stdout, stderr) => {
-				if (error) reject();
+			if (this.duration) {
+				resolve(this.duration);
+			} else {
+				exec( this.dbusCommand('getduration'), (error, stdout, stderr) => {
+					if (error) reject();
 
-				let duration = parseInt(stdout);
-				console.log('getDuration:', duration, 'or in seconds:', duration / 1000);
-				resolve(duration);
-			});
+					let duration = parseInt(stdout);
+					console.log('getDuration:', duration, 'or in seconds:', duration / 1000);
+					resolve(duration);
+					this.duration = duration; // cache last known duration
+				});
+			}
 		});
 	}
 
@@ -162,7 +167,13 @@ class OmxInstance {
 			this.getIsPlaying()
 				 .then( (isPlaying) => {
 					 if (isPlaying) {
-						 callback({'position': this.getCurrentPosition(), 'duration': this.getDuration()});
+						 this.getCurrentPosition()
+						 	.then( (position) => {
+								this.getDuration()
+									.then( (duration) => {
+										callback({ 'position': position, 'duration': duration });
+									});
+							});
 					 } else {
 						 callback({ 'playing': false });
 					 }
