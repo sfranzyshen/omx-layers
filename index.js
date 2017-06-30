@@ -254,6 +254,7 @@ class OmxInstance {
 	}
 
 	waitTillPlaying (callback) {
+		console.log('waitTillPlaying');
 		let countAttempts = 0;
 		let gotPlayStatus = false;
 		while (!gotPlayStatus) {
