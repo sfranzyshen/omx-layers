@@ -312,7 +312,9 @@ class OmxInstance {
   		this.cancelProgressHandlerIfActive();
 	  	console.log(stdout);
 	  });
-	  exec(' . > omxpipe'+this.layer);
+	  exec(' . > omxpipe'+this.layer, (error, stdout, stderr) => {
+			console.log('started ok');
+		});
 
 	  this.update_duration();
 
