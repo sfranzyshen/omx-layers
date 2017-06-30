@@ -172,7 +172,7 @@ class OmxInstance {
 					 console.error('error getting isPlaying status');
 					 callback({ 'status': 'error', 'playing': false });
 				 });
-		}, 1000);
+		}, 100);
 	}
 
 	onStart (callback) {
