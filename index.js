@@ -87,7 +87,8 @@ class OmxInstance {
 	setPosition (position) {
 		//position in seconds from start; //positions larger than the duration will stop the player;
 		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), (error, stdout, stderr) => {});
-	}
+		this.overridePosition = position*1000000;
+
 
 	setVolume (volume) {
 		// volume range [0.0, 1.0];
@@ -107,11 +108,16 @@ class OmxInstance {
 
 	getCurrentPosition () {
 		return new Promise( (resolve, reject) => {
-			exec(this.dbusCommand('getposition'), (error, stdout, stderr) => {
-				if (error) reject();
-				let position = parseInt(stdout) / 1000; // microseconds to milliseconds
-				resolve(position);
-			});
+			if (typeof(this.overridePosition) == 'number') {
+				resolve(this.overridePosition);
+				this.overridePosition = null;
+			} else {
+				exec(this.dbusCommand('getposition'), (error, stdout, stderr) => {
+					if (error) reject();
+					let position = parseInt(stdout) / 1000; // microseconds to milliseconds
+					resolve(position);
+				});
+			}
 		});
 	}
 
