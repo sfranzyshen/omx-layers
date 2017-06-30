@@ -161,7 +161,7 @@ class OmxInstance {
 						 	.then( (position) => {
 								this.getDuration()
 									.then( (duration) => {
-										callback({ 'position': position, 'duration': duration });
+										callback({ position: position, duration: duration });
 									});
 							});
 					 } else {
