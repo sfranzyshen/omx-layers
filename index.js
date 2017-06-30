@@ -253,6 +253,23 @@ class OmxInstance {
 		}
 	}
 
+	waitTillPlaying (callback) {
+		let countAttempts = 0;
+		let gotPlayStatus = false;
+		while (!gotPlayStatus) {
+			countAttempts++;
+			exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
+				if (error) {
+					console.log('error on getplaystus:', error);
+				} else {
+					console.log('getplaystatus result after', countAttempts, ':', stdout);
+					gotPlayStatus = false;
+					callback();
+				}
+			});
+		}
+	}
+
 	open (path, doneCallback, holdMode) {
 		console.log('OmxInstance open() for layer #', this.layer, 'holdMode?', holdMode);
 		let settings = this.options || {};
@@ -320,13 +337,15 @@ class OmxInstance {
 	  	console.log(stdout);
 	  });
 	  exec(' . > omxpipe'+this.layer, (error, stdout, stderr) => {
-			console.log('started ok');
-			this.onStart();
-			if (holdMode) {
-				console.log('holdMode ON, so immediately pause and hide');
-				this.pause();
-				this.setVisibility(false);
-			}
+			this.waitTillPlaying( () => {
+				console.log('started ok');
+				this.onStart();
+				if (holdMode) {
+					console.log('holdMode ON, so immediately pause and hide');
+					this.pause();
+					this.setVisibility(false);
+				}
+			});
 		});
 
 	  this.update_duration();
