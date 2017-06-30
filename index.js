@@ -253,8 +253,8 @@ class OmxInstance {
 		}
 	}
 
-	open (path, doneCallback) {
-		console.log('OmxInstance open() for layer #', this.layer);
+	open (path, doneCallback, holdMode) {
+		console.log('OmxInstance open() for layer #', this.layer, 'holdMode?', holdMode);
 		let settings = this.options || {};
 		let args = [];
 		let command = 'omxplayer';
@@ -322,6 +322,11 @@ class OmxInstance {
 	  exec(' . > omxpipe'+this.layer, (error, stdout, stderr) => {
 			console.log('started ok');
 			this.onStart();
+			if (holdMode) {
+				console.log('holdMode ON, so immediately pause and hide');
+				this.pause();
+				this.setVisibility(false);
+			}
 		});
 
 	  this.update_duration();
