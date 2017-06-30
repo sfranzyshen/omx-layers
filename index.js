@@ -246,6 +246,13 @@ class OmxInstance {
 		}, 1000);
 	}
 
+	onStart (callback) {
+		console.log('onStart event');
+		if (callback) {
+			callback();
+		}
+	}
+
 	open (path, doneCallback) {
 		console.log('OmxInstance open() for layer #', this.layer);
 		let settings = this.options || {};
@@ -314,6 +321,7 @@ class OmxInstance {
 	  });
 	  exec(' . > omxpipe'+this.layer, (error, stdout, stderr) => {
 			console.log('started ok');
+			this.onStart();
 		});
 
 	  this.update_duration();
