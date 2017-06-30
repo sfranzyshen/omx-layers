@@ -88,7 +88,7 @@ class OmxInstance {
 		//position in seconds from start; //positions larger than the duration will stop the player;
 		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), (error, stdout, stderr) => {});
 		this.overridePosition = position*1000000;
-
+	}
 
 	setVolume (volume) {
 		// volume range [0.0, 1.0];
