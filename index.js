@@ -106,7 +106,9 @@ class OmxInstance {
 	}
 
 	getCurrentPosition () {
+		console.log('getCurrentPosition');
 		exec(this.dbusCommand('getposition'), (error, stdout, stderr) => {
+			consoel.log('getCurrentPosition error, stdout, stderr:', error, stdout, stderr);
 			if (error) return null;
 			let position = parseInt(stdout);
 			console.log('currentPosition:', position, 'or in seconds:', position / 1000);
