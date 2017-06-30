@@ -120,8 +120,15 @@ class OmxInstance {
 		console.log('getIsPlaying');
 		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
 			console.log('getplaystatus error, stdout, stderr:', error, stdout, stderr);
-			if (error) return null;
-			return (stdout === 'Playing') ? true : false;
+			if (error) {
+				console.error('error getting play status:', err);
+				return null;
+			}
+			if (stdout == 'Playing') {
+				return true;
+			} else {
+				return false;
+			}
 	  });
 	}
 
