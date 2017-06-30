@@ -25,46 +25,12 @@ class OmxInstance {
 
 		this.defaults = null;
 		this.progressHandler = null;
-		this.cache = this.setDefault();
 
 	}
 
 	getLayer() {
 		return this.layer;
 	}
-
-	setDefault () {
-		this.defaults = {
-			path:{
-				value:'',
-				time:new Date(),
-				valid:false
-			},
-			position:{
-				value:false,
-				time:new Date(),
-				valid:false
-			},
-			duration:{
-				value:0,
-				time:new Date(),
-				valid:false
-			},
-			volume:{
-				value:1.0,
-				time:new Date(),
-				valid:false
-			},
-			isPlaying:{
-				value:0,
-				time:new Date(),
-				valid:false
-			}
-		};
-
-		return this.defaults;
-	}
-
 
 	cancelProgressHandlerIfActive() {
 		if (this.progressHandler) {
@@ -79,17 +45,11 @@ class OmxInstance {
 		return merge;
 	}
 
-
 	resume () {
 		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
 			// Ignore if already playing
 			if (stdout.indexOf("Paused")>-1) {
-				this.update_position();
-				this.update_duration();
 				this.togglePlay();
-				this.cache.isPlaying.value = 1;
-				this.cache.isPlaying.time = new Date();
-				this.cache.isPlaying.valid = true;
 			}
 		});
 	}
@@ -99,16 +59,12 @@ class OmxInstance {
 			// Ignore if already paused
 			if (stdout.indexOf("Playing")>-1) {
 				this.togglePlay();
-				this.cache.isPlaying.value = 0;
-				this.cache.isPlaying.time = new Date();
-				this.cache.isPlaying.valid = true;
 			}
 		});
 	}
 
 	stop () {
 		exec(this.dbusCommand('stop'), (error, stdout, stderr) => {
-			this.cache = this.defaults;
 			this.cancelProgressHandlerIfActive();
 		});
 	}
@@ -116,36 +72,27 @@ class OmxInstance {
 	quit () {
 		exec(this.dbusCommand('quit'), (error, stdout, stderr) => {
 			this.cancelProgressHandlerIfActive();
-			this.cache = this.defaults;
 	  });
 	}
 
 	togglePlay () {
-		exec(this.dbusCommand('toggleplay'), (error, stdout, stderr) => {
-			this.update_duration();
-		});
+		exec(this.dbusCommand('toggleplay'), (error, stdout, stderr) => {});
 	}
 
 	seek (offset) {
 		//seek offset in seconds; relative from current position; negative values will cause a jump back;
-		exec(this.dbusCommand('seek ' +Math.round(offset*1000000)), (error, stdout, stderr) => {
-			this.update_position();
-	  });
+		exec(this.dbusCommand('seek ' +Math.round(offset*1000000)), (error, stdout, stderr) => {});
 	}
 
 	setPosition (position) {
 		//position in seconds from start; //positions larger than the duration will stop the player;
-		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), (error, stdout, stderr) => {
-			this.update_position();
-	  });
+		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), (error, stdout, stderr) => {});
 	}
 
 	setVolume (volume) {
 		// volume range [0.0, 1.0];
 		if (volume > 0 && volume < 1.0) {
-			exec(this.dbusCommand('setvolume '+volume), (error, stdout, stderr) => {
-				this.update_volume();
-			});
+			exec(this.dbusCommand('setvolume '+volume), (error, stdout, stderr) => {});
 		}
 	}
 
@@ -158,92 +105,46 @@ class OmxInstance {
 		exec(this.dbusCommand('setalpha ' + alpha), (err, stdout, stderr) => {});
 	}
 
-	update_position () {
-		exec(this.dbusCommand('getposition'), (error, stdout, stderr) => {
-			if (error) return false;
-			let position = parseInt(stdout);
-			this.cache.position.value = position;
-			this.cache.position.time = new Date();
-			this.cache.position.valid = true;
-	  });
-	}
-
-	update_status () {
-		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
-			if (error) return false;
-			this.cache.isPlaying.value = ((stdout.indexOf("Playing")>-1) ? 1 : 0);
-	 		this.cache.isPlaying.time = new Date();
-			this.cache.isPlaying.valid = true;
-	  });
-	}
-
-	update_duration () {
-		exec( this.dbusCommand('getduration'), (error, stdout, stderr) => {
-			if (error) return false;
-    	let duration = Math.round(Math.max(0,Math.round(parseInt(stdout.substring((stdout.indexOf("int64")>-1 ? stdout.indexOf("int64")+6:0)))/10000)/100));
-			this.cache.duration.value = duration;
-			this.cache.duration.time = new Date();
-			this.cache.duration.valid = true;
-	  });
-	}
-
-	update_volume () {
-		exec(this.dbusCommand('getvolume'), (error, stdout, stderr) => {
-			if (error) return false;
-    	let volume = parseFloat(stdout);
-			this.cache.volume.value = volume;
-			this.cache.volume.time = new Date();
-			this.cache.volume.valid = true;
-	  });
-	}
-
 	getCurrentPosition () {
-		if((new Date()-this.cache.position.time)/1000 > 2) {
-			this.cache.position.valid = false;
-		}
-		if(!this.cache.position.valid) {
-			this.update_position();
-		}
-		if(this.cache.position.value > 0) {
-			return Math.round(Math.max(0,Math.min(Math.round((this.cache.position.value + this.getCurrentStatus()*((new Date())-this.cache.position.time)*1000)/1000000),this.getCurrentDuration())));
-		} else {
-			return 0;
-		}
+		exec(this.dbusCommand('getposition'), (error, stdout, stderr) => {
+			if (error) return null;
+			let position = parseInt(stdout);
+			console.log('currentPosition:', position, 'or in seconds:', position / 1000);
+			return position;
+	  });
 	}
 
-	getCurrentStatus () {
-		if((new Date()-this.cache.isPlaying.time)/1000 > 2) {
-			this.cache.isPlaying.valid = false;
-		}
-		if(!this.cache.isPlaying.valid) {
-			this.update_status();
-		}
-		return this.cache.isPlaying.value;
+	getIsPlaying () {
+		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
+			if (error) return null;
+			return stdout === 'Playing'? true : false;
+	  });
 	}
 
-	getCurrentDuration () {
-		if(this.cache.duration.value <= 0) {
-			this.cache.duration.valid = false;
-		}
-		if(!this.cache.duration.valid) {
-			this.update_duration();
-		}
-		return this.cache.duration.value;
+	getDuration () {
+		exec( this.dbusCommand('getduration'), (error, stdout, stderr) => {
+			if (error) return null;
+			let duration = parseInt(stdout);
+			console.log('getDuration:', duration, 'or in seconds:', duration / 1000);
+    	// let duration = Math.round(Math.max(0,Math.round(parseInt(stdout.substring((stdout.indexOf("int64")>-1 ? stdout.indexOf("int64")+6:0)))/10000)/100));
+
+	  });
 	}
 
-	getCurrentVolume () {
-		if(!this.cache.volume.valid) {
-			this.update_volume();
-		}
-		return this.cache.volume.value;
-	}
+	getVolume () {
+		exec(this.dbusCommand('getvolume'), (error, stdout, stderr) => {
+			if (error) return null;
+			let volume = parseFloat(stdout);
+			console.log('getVolume:', volume);
+		});	}
 
 	onProgress (callback) {
 		console.log('add new progress handler for layer', this.layer);
 		this.progressHandler = setInterval( () => {
-			this.update_position();
-			if(this.getCurrentStatus()){
-				callback({position: this.getCurrentPosition(), duration: this.getCurrentDuration()});
+			if(this.isPlaying){
+				callback({'position': this.getCurrentPosition(), 'duration': this.getDuration()});
+			} else {
+				callback({ 'playing': false });
 			}
 		}, 1000);
 	}
@@ -278,11 +179,6 @@ class OmxInstance {
 		let settings = this.options || {};
 		let args = [];
 		let command = 'omxplayer';
-
-		this.cache = this.setDefault();
-
-		this.cache.path.value = path;
-		this.cache.path.valid = true;
 
 		args.push('"'+path+'"');
 
@@ -338,7 +234,6 @@ class OmxInstance {
 		console.log('finalOpenCommand:', finalOpenCommand);
 
 	  exec(finalOpenCommand, (error, stdout, stderr) => {
-			this.update_duration();
 			doneCallback();
 			console.log('omxpipe done for layer', this.layer);
   		this.cancelProgressHandlerIfActive();
@@ -355,8 +250,6 @@ class OmxInstance {
 				}
 			});
 		});
-
-	  this.update_duration();
 
 	}
 
