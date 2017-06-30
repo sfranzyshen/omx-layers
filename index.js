@@ -160,7 +160,7 @@ class OmxInstance {
 		console.log('add new progress handler for layer', this.layer);
 		this.progressHandler = setInterval( () => {
 			this.getIsPlaying()
-				 then( (isPlaying) => {
+				 .then( (isPlaying) => {
 					 if (isPlaying) {
 						 callback({'position': this.getCurrentPosition(), 'duration': this.getDuration()});
 					 } else {
