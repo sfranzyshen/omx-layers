@@ -27,15 +27,6 @@ class OmxInstance {
 		this.progressHandler = null;
 		this.cache = this.setDefault();
 
-		this.playTryCount = 0;
-		this.pauseTryCount = 0;
-		this.stopTryCount = 0;
-		this.quitTryCount = 0;
-		this.togglePlayTryCount = 0;
-		this.seekTryCount = 0;
-		this.setPositionTryCount = 0;
-		this.setVolumeTryCount = 0;
-
 	}
 
 	getLayer() {
@@ -91,136 +82,78 @@ class OmxInstance {
 
 	resume () {
 		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
-			if(error && (this.playTryCount < 3)){
-				this.playTryCount++;
-				this.resume();
-			} else if(error) {
-				this.playTryCount = 0;
-			} else {
-				this.playTryCount = 0;
-				if (stdout.indexOf("Paused")>-1) {
-					this.togglePlay();
-					this.cache.isPlaying.value = 1;
-					this.cache.isPlaying.time = new Date();
-					this.cache.isPlaying.valid = true;
-				}
+			// Ignore if already playing
+			if (stdout.indexOf("Paused")>-1) {
+				this.togglePlay();
+				this.cache.isPlaying.value = 1;
+				this.cache.isPlaying.time = new Date();
+				this.cache.isPlaying.valid = true;
 			}
 		});
 	}
 
 	pause () {
 		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
-			if (error) {
-				console.log('getplaystatus error:', error);
-			} else {
-				console.log('getplaystatus result:', stdout);
-				if (stdout.indexOf("Playing")>-1) {
-					this.togglePlay();
-					this.cache.isPlaying.value = 0;
-					this.cache.isPlaying.time = new Date();
-					this.cache.isPlaying.valid = true;
-				}
+			// Ignore if already paused
+			if (stdout.indexOf("Playing")>-1) {
+				this.togglePlay();
+				this.cache.isPlaying.value = 0;
+				this.cache.isPlaying.time = new Date();
+				this.cache.isPlaying.valid = true;
 			}
 		});
 	}
 
 	stop () {
 		exec(this.dbusCommand('stop'), (error, stdout, stderr) => {
-			if(error && (this.stopTryCount < 3)){
-				this.stopTryCount++;
-				this.stop();
-			} else if(error) {
-				this.stopTryCount = 0;
-			} else {
-				this.stopTryCount = 0;
-				this.cache = this.defaults;
-			}
+			this.cache = this.defaults;
+			this.cancelProgressHandlerIfActive();
 		});
-		this.cancelProgressHandlerIfActive();
 	}
 
 	quit () {
-		this.cancelProgressHandlerIfActive();
 		exec(this.dbusCommand('quit'), (error, stdout, stderr) => {
-			if(error && (this.quitTryCount < 3)){
-				this.quitTryCount++;
-				this.quit();
-			} else if(error) {
-				this.quitTryCount = 0;
-			} else {
-				this.quitTryCount = 0;
-				this.cache = this.defaults;
-			}
+			this.cancelProgressHandlerIfActive();
+			this.cache = this.defaults;
 	  });
 	}
 
 	togglePlay () {
-		this.update_duration();
 		exec(this.dbusCommand('toggleplay'), (error, stdout, stderr) => {
-			if (error) {
-				console.log('toggleplay error:', error);
-			} else {
-				console.log('toggleplay result:', stdout);
-			}
-			if(error && (this.togglePlayTryCount < 4)){
-				this.togglePlayTryCount++;
-				this.togglePlay();
-			} else {
-				this.togglePlayTryCount = 0;
-			}
-	  });
+			this.update_duration();
+		});
 	}
 
 	seek (offset) {
 		//seek offset in seconds; relative from current position; negative values will cause a jump back;
 		exec(this.dbusCommand('seek ' +Math.round(offset*1000000)), (error, stdout, stderr) => {
-			if(error && (this.seekTryCount < 4)){
-				this.seekTryCount++;
-				this.seek(offset);
-			} else {
-				this.seekTryCount = 0;
-				this.update_position();
-			}
+			this.update_position();
 	  });
 	}
 
 	setPosition (position) {
 		//position in seconds from start; //positions larger than the duration will stop the player;
 		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), (error, stdout, stderr) => {
-			if(error && (this.setPositionTryCount < 4)){
-				this.setPositionTryCount++;
-				this.setPosition(position);
-			} else {
-				this.setPositionTryCount = 0;
-				this.update_position();
-			}
+			this.update_position();
 	  });
 	}
 
 	setVolume (volume) {
-		//volume should be set from 0.0 to 1.0; Above 1.0 is depreciated;
-		exec(this.dbusCommand('setvolume '+volume), (error, stdout, stderr) => {
-			if(error && (setPositionTryCount < 4)){
-				this.setVolumeTryCount++;
-				this.setVolume(volume);
-			} else {
-				this.setVolumeTryCount = 0;
+		// volume range [0.0, 1.0];
+		if (volume > 0 && volume < 1.0) {
+			exec(this.dbusCommand('setvolume '+volume), (error, stdout, stderr) => {
 				this.update_volume();
-			}
-	  });
+			});
+		}
 	}
 
 	setVisibility (visible) {
 		let command = visible ? 'unhidevideo' : 'hidevideo';
-		exec(this.dbusCommand(command), (err, stdout, stderr) => {
-			console.log('result of setVisible:', command, ': error?', err);
-		});
+		exec(this.dbusCommand(command), (err, stdout, stderr) => {});
 	}
 
 	setAlpha (alpha) {
-		exec(this.dbusCommand('setalpha ' + alpha), (err, stdout, stderr) => {
-			console.log('result of setAlpha; error?', err);
-		});
+		exec(this.dbusCommand('setalpha ' + alpha), (err, stdout, stderr) => {});
 	}
 
 	update_position () {
