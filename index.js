@@ -128,7 +128,7 @@ class OmxInstance {
 					console.error('error getting play status:', err);
 					reject();
 				}
-				if (stdout === 'Playing') {
+				if (stdout == 'Playing') {
 					resolve(true);
 				} else {
 					resolve(false);
