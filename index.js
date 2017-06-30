@@ -84,6 +84,8 @@ class OmxInstance {
 		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
 			// Ignore if already playing
 			if (stdout.indexOf("Paused")>-1) {
+				this.update_position();
+				this.update_duration();
 				this.togglePlay();
 				this.cache.isPlaying.value = 1;
 				this.cache.isPlaying.time = new Date();
