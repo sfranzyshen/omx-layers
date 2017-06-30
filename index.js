@@ -109,7 +109,7 @@ class OmxInstance {
 		return new Promise( (resolve, reject) => {
 			exec(this.dbusCommand('getposition'), (error, stdout, stderr) => {
 				if (error) reject();
-				let position = parseInt(stdout) * 1000; // microseconds to milliseconds
+				let position = parseInt(stdout) / 1000; // microseconds to milliseconds
 				resolve(position);
 			});
 		});
@@ -136,7 +136,7 @@ class OmxInstance {
 				exec( this.dbusCommand('getduration'), (error, stdout, stderr) => {
 					if (error) reject();
 
-					let duration = parseInt(stdout) * 1000; // microseconds to milliseconds
+					let duration = parseInt(stdout) / 1000; // microseconds to milliseconds
 					resolve(duration);
 					this.duration = duration; // cache last known duration
 				});
