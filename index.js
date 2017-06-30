@@ -268,7 +268,7 @@ class OmxInstance {
 					callback();
 				}
 			});
-		}, 10);
+		}, 100);
 	}
 
 	open (path, doneCallback, holdMode) {
