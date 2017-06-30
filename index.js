@@ -106,27 +106,19 @@ class OmxInstance {
 	}
 
 	getCurrentPosition () {
-		console.log('getCurrentPosition');
 		return new Promise( (resolve, reject) => {
 			exec(this.dbusCommand('getposition'), (error, stdout, stderr) => {
-				console.log('getposition error, stdout, stderr:', error, stdout, stderr);
 				if (error) reject();
-
 				let position = parseInt(stdout);
-				console.log('currentPosition:', position, 'or in seconds:', position / 1000);
 				resolve(position);
 			});
 		});
 	}
 
 	getIsPlaying () {
-		console.log('getIsPlaying');
 		return new Promise( (resolve, reject) => {
 			exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
-				if (error) {
-					console.error('error getting play status:', err);
-					reject();
-				}
+				if (error) reject();
 				if (stdout.indexOf('Playing') > -1) {
 					resolve(true);
 				} else {
@@ -145,7 +137,6 @@ class OmxInstance {
 					if (error) reject();
 
 					let duration = parseInt(stdout);
-					console.log('getDuration:', duration, 'or in seconds:', duration / 1000);
 					resolve(duration);
 					this.duration = duration; // cache last known duration
 				});
@@ -165,7 +156,6 @@ class OmxInstance {
 		this.progressHandler = setInterval( () => {
 			this.getIsPlaying()
 				 .then( (isPlaying) => {
-					 console.log('isPlaying?', isPlaying);
 					 if (isPlaying) {
 						 this.getCurrentPosition()
 						 	.then( (position) => {
