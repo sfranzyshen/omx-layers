@@ -107,39 +107,46 @@ class OmxInstance {
 
 	getCurrentPosition () {
 		console.log('getCurrentPosition');
-		exec(this.dbusCommand('getposition'), (error, stdout, stderr) => {
-			console.log('getposition error, stdout, stderr:', error, stdout, stderr);
-			if (error) return null;
-			let position = parseInt(stdout);
-			console.log('currentPosition:', position, 'or in seconds:', position / 1000);
-			return position;
-	  });
+		return new Promise( (resolve, reject) => {
+			exec(this.dbusCommand('getposition'), (error, stdout, stderr) => {
+				console.log('getposition error, stdout, stderr:', error, stdout, stderr);
+				if (error) reject();
+
+				let position = parseInt(stdout);
+				console.log('currentPosition:', position, 'or in seconds:', position / 1000);
+				resolve(position);
+			});
+		});
 	}
 
 	getIsPlaying () {
 		console.log('getIsPlaying');
-		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
-			console.log('getplaystatus error, stdout, stderr:', error, stdout, stderr);
-			if (error) {
-				console.error('error getting play status:', err);
-				return null;
-			}
-			if (stdout == 'Playing') {
-				return true;
-			} else {
-				return false;
-			}
-	  });
+		return new Promise( (resolve, reject) => {
+			exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
+				console.log('getplaystatus error, stdout, stderr:', error, stdout, stderr);
+				if (error) {
+					console.error('error getting play status:', err);
+					reject();
+				}
+				if (stdout === 'Playing') {
+					resolve(true);
+				} else {
+					resolve(false);
+				}
+			});
+		});
 	}
 
 	getDuration () {
-		exec( this.dbusCommand('getduration'), (error, stdout, stderr) => {
-			if (error) return null;
-			let duration = parseInt(stdout);
-			console.log('getDuration:', duration, 'or in seconds:', duration / 1000);
-    	// let duration = Math.round(Math.max(0,Math.round(parseInt(stdout.substring((stdout.indexOf("int64")>-1 ? stdout.indexOf("int64")+6:0)))/10000)/100));
+		return new Promise( (resolve, reject) => {
+			exec( this.dbusCommand('getduration'), (error, stdout, stderr) => {
+				if (error) reject();
 
-	  });
+				let duration = parseInt(stdout);
+				console.log('getDuration:', duration, 'or in seconds:', duration / 1000);
+				resolve(duration);
+			});
+		});
 	}
 
 	getVolume () {
@@ -152,11 +159,18 @@ class OmxInstance {
 	onProgress (callback) {
 		console.log('add new progress handler for layer', this.layer);
 		this.progressHandler = setInterval( () => {
-			if(this.getIsPlaying()){
-				callback({'position': this.getCurrentPosition(), 'duration': this.getDuration()});
-			} else {
-				callback({ 'playing': false });
-			}
+			this.getIsPlaying()
+				 then( (isPlaying) => {
+					 if (isPlaying) {
+						 callback({'position': this.getCurrentPosition(), 'duration': this.getDuration()});
+					 } else {
+						 callback({ 'playing': false });
+					 }
+				 })
+				 .catch( () => {
+					 console.error('error getting isPlaying status');
+					 callback({ 'status': 'error', 'playing': false });
+				 });
 		}, 1000);
 	}
 
