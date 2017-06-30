@@ -123,14 +123,16 @@ class OmxInstance {
 		console.log('getIsPlaying');
 		return new Promise( (resolve, reject) => {
 			exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
-				console.log('getplaystatus error, stdout, stderr:', error, stdout, stderr);
+				console.log('stdout:', stdout);
 				if (error) {
 					console.error('error getting play status:', err);
 					reject();
 				}
 				if (stdout == 'Playing') {
+					console.log('match playing');
 					resolve(true);
 				} else {
+					console.log('no match playing');
 					resolve(false);
 				}
 			});
