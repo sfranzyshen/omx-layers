@@ -114,19 +114,11 @@ class OmxInstance {
 				console.log('getplaystatus error:', error);
 			} else {
 				console.log('getplaystatus result:', stdout);
-			}
-			if(error && (this.stopTryCount < 3)){
-				this.pauseTryCount++;
-				this.pause();
-			} else if(error) {
-				this.pauseTryCount = 0;
-			} else {
-				this.pauseTryCount = 0;
 				if (stdout.indexOf("Playing")>-1) {
 					this.togglePlay();
-	 				this.cache.isPlaying.value = 0;
-	 				this.cache.isPlaying.time = new Date();
-	 				this.cache.isPlaying.valid = true;
+					this.cache.isPlaying.value = 0;
+					this.cache.isPlaying.time = new Date();
+					this.cache.isPlaying.valid = true;
 				}
 			}
 		});
