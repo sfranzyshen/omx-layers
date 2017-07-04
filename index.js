@@ -23,7 +23,12 @@ class OmxInstance {
 
 		exec('mkfifo omxpipe'+this.layer);
 
-		this.defaults = null;
+		if (options && options.progressInterval) {
+			this.progressInterval = options.progressInterval;
+		} else {
+			this.progressInterval = 100;
+		}
+
 		this.progressHandler = null;
 
 	}
@@ -178,7 +183,7 @@ class OmxInstance {
 					 console.error('error getting isPlaying status');
 					 callback({ 'status': 'error', 'playing': false });
 				 });
-		}, 100);
+		}, this.progressInterval);
 	}
 
 	onStart (callback) {
