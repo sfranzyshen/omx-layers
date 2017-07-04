@@ -24,6 +24,7 @@ class OmxInstance {
 		exec('mkfifo omxpipe'+this.layer);
 
 		if (options && options.progressInterval) {
+			console.log('custom progress interval:', options.progressInterval);
 			this.progressInterval = options.progressInterval;
 		} else {
 			this.progressInterval = 100;
