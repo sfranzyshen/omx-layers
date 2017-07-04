@@ -71,54 +71,54 @@ if (player[1].getLayer() == 2) {
 
 # Properties
 ## Get duration of current track/movie in seconds
-``omx.getCurrentDuration();``
+``player.getCurrentDuration();``
 
 ## Get position of current track/movie in seconds
-``omx.getCurrentPosition();``
+``player.getCurrentPosition();``
 
-This function can be called many times per second without bothering the DBus since the position is extrapolated from the short term cached paying status.
+Get current position via D-Bus (if currently playing) in milliseconds.
 
 ## Get volume as fraction of max (0.0 - 1.0)
-``omx.getCurrentVolume();``
+``player.getCurrentVolume();``
 
 # Methods
 
 ## Jump to point in file/seek relative to current position (-Inf to +Inf)
-``omx.seek(seconds);``
+``player.seek(milliseconds);``
 
 ## Jump to point in file/seek relative to start point (absolute)
-``omx.setPosition(seconds);``
+``player.setPosition(milliseconds);``
 
 ## Stop playing
-``omx.stop();``
+``player.stop();``
 
 ## Quit omxplayer
-``omx.quit();``
+``player.quit();``
 
 ## Pause omxplayer
-``omx.pause();``
+``player.pause();``
 
 Note: Unlike hitting the spacebar, this method pauses only when playing and remains paused when allready paused.
 
 ## Resume playing
-``omx.play();``
+``player.play();``
 
 Note: Unlike hitting the spacebar, this method starts playing only when paused and remains playing when allready playing.
 
 ## Toggle pause/play
-``omx.togglePlay();``
+``player.togglePlay();``
 
 Note: Same function as hitting spacebar in omxplayer.
 
 ## Volume up
-``omx.volumeUp();``
+``player.volumeUp();``
 
 Note: Same function as "+" key in omxplayer.
 
 ## Volume down
-``omx.volumeDown();``
+``player.volumeDown();``
 
 Note: Same function as "-" key in omxplayer.
 
 ## Set volume to a fraction of the max volume (0.0 - 1.0)
-``omx.setVolume(vol);``
+``player.setVolume(vol);``
