@@ -27,7 +27,7 @@ class OmxInstance {
 			console.log('custom progress interval:', options.progressInterval);
 			this.progressInterval = options.progressInterval;
 		} else {
-			this.progressInterval = 100;
+			this.progressInterval = 1000;
 		}
 
 		this.progressHandler = null;
