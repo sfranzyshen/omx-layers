@@ -37,11 +37,11 @@ player.open('myclip.mp4', () => {
 ## Multiple players, multiple layers
 ```
 const omx = require('omx-layers');
-let players = [];
-const numPlayers = 2;
+let layers = [];
+const numLayers = 2;
 
-for (var i=0; i<numPlayers; i++) {
-	players.push(
+for (var i=0; i<numLayers; i++) {
+	layers.push(
 		new omx({
 			audioOutput: 'local',
 			blackBackground: true,
@@ -56,8 +56,8 @@ for (var i=0; i<numPlayers; i++) {
 Find the clip with the layer you want, and play:
 ```
 // Let's say you wanted to play a clip on layer 2...
-if (player[1].getLayer() == 2) {
-	player[1].open('foreground-clip.mp4');
+if (layer[1].getLayer() == 2) {
+	layer[1].open('foreground-clip.mp4');
 }
 ```
 
@@ -71,54 +71,54 @@ if (player[1].getLayer() == 2) {
 
 # Properties
 ## Get duration of current track/movie in seconds
-``player.getCurrentDuration();``
+``layer.getCurrentDuration();``
 
 ## Get position of current track/movie in seconds
-``player.getCurrentPosition();``
+``layer.getCurrentPosition();``
 
 Get current position via D-Bus (if currently playing) in milliseconds.
 
 ## Get volume as fraction of max (0.0 - 1.0)
-``player.getCurrentVolume();``
+``layer.getCurrentVolume();``
 
 # Methods
 
 ## Jump to point in file/seek relative to current position (-Inf to +Inf)
-``player.seek(milliseconds);``
+``layer.seek(milliseconds);``
 
 ## Jump to point in file/seek relative to start point (absolute)
-``player.setPosition(milliseconds);``
+``layer.setPosition(milliseconds);``
 
 ## Stop playing
-``player.stop();``
+``layer.stop();``
 
 ## Quit omxplayer
-``player.quit();``
+``layer.quit();``
 
 ## Pause omxplayer
-``player.pause();``
+``layer.pause();``
 
 Note: Unlike hitting the spacebar, this method pauses only when playing and remains paused when allready paused.
 
 ## Resume playing
-``player.play();``
+``layer.play();``
 
 Note: Unlike hitting the spacebar, this method starts playing only when paused and remains playing when allready playing.
 
 ## Toggle pause/play
-``player.togglePlay();``
+``layer.togglePlay();``
 
 Note: Same function as hitting spacebar in omxplayer.
 
 ## Volume up
-``player.volumeUp();``
+``layer.volumeUp();``
 
 Note: Same function as "+" key in omxplayer.
 
 ## Volume down
-``player.volumeDown();``
+``layer.volumeDown();``
 
 Note: Same function as "-" key in omxplayer.
 
 ## Set volume to a fraction of the max volume (0.0 - 1.0)
-``player.setVolume(vol);``
+``layer.setVolume(vol);``
