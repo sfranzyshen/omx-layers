@@ -268,6 +268,11 @@ class OmxInstance {
 		args.push('--dbus_name');
 		args.push(this.dbusDest);
 
+		if (settings.aspectMode) {
+			args.push('--aspect-mode');
+			args.push(settings.aspectMode);
+		}
+
 		let finalOpenCommand = command+' '+args.join(' ')+' < omxpipe'+this.layer;
 		console.log('finalOpenCommand:', finalOpenCommand);
 
