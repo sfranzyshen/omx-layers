@@ -225,7 +225,7 @@ class OmxInstance {
 			args.push(settings.audioOutput);
 		}
 
-		if (settings.blackBackground !== false) { // defaults to true
+		if (settings.blackBackground == true) { // defaults to false
 			args.push('-b');
 		}
 
