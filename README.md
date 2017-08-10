@@ -63,7 +63,7 @@ if (layer[1].getLayer() == 2) {
 
 # Options
 * `audioOutput`: 'hdmi' | 'local' | 'both'
-* `blackBackground`: boolean, true by default
+* `blackBackground`: boolean, false by default (careful enabling this when layering, or you might get strange intermittent screen blanking)
 * `layer`: 1-infinity (2 is probably enough!); if omitted then clips will automatically player on layer 1
 * `disableKeys`: boolean, false by default
 * `disableOnScreenDisplay`:  boolean, false by default
