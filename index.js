@@ -132,7 +132,7 @@ class OmxInstance {
 			exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
 				if (error) {
 					console.error('error from getplaystatus:', error);
-					reject('stopped');
+					reject(error);
 				}
 				if (stdout.indexOf('Playing') > -1) {
 					resolve('playing');
@@ -183,8 +183,8 @@ class OmxInstance {
 						 callback({ status: playStatus });
 					 }
 				 })
-				 .catch( () => {
-					 console.error('error getting isPlaying status');
+				 .catch( (err) => {
+					 console.error('error getting isPlaying status:', err);
 					 callback({ status: 'error' });
 				 });
 		}, this.progressInterval);
