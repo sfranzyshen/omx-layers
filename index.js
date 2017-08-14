@@ -131,6 +131,7 @@ class OmxInstance {
 		return new Promise( (resolve, reject) => {
 			exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
 				if (error) {
+					console.error('error from getplaystatus:', error);
 					reject('stopped');
 				}
 				if (stdout.indexOf('Playing') > -1) {
