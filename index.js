@@ -171,7 +171,7 @@ class OmxInstance {
 		this.progressHandler = setInterval( () => {
 			this.getPlayStatus()
 				 .then( (playStatus) => {
-					 if (isPlaying !== 'stopped') {
+					 if (playStatus !== 'stopped') {
 						 this.getCurrentPosition()
 						 	.then( (position) => {
 								this.getDuration()
@@ -184,7 +184,7 @@ class OmxInstance {
 					 }
 				 })
 				 .catch( (err) => {
-					 console.error('error getting isPlaying status:', err);
+					 console.error('error getting playStatus:', err);
 					 callback({ status: 'error' });
 				 });
 		}, this.progressInterval);
