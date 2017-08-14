@@ -98,12 +98,12 @@ Get current position via D-Bus (if currently playing) in milliseconds.
 ## Pause omxplayer
 ``layer.pause();``
 
-Note: Unlike hitting the spacebar, this method pauses only when playing and remains paused when allready paused.
+Note: Unlike hitting the spacebar, this method pauses only when playing and remains paused when already paused.
 
 ## Resume playing
 ``layer.play();``
 
-Note: Unlike hitting the spacebar, this method starts playing only when paused and remains playing when allready playing.
+Note: Unlike hitting the spacebar, this method starts playing only when paused and remains playing when already playing.
 
 ## Toggle pause/play
 ``layer.togglePlay();``
