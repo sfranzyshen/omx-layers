@@ -68,6 +68,16 @@ if (layer[1].getLayer() == 2) {
 * `disableKeys`: boolean, false by default
 * `disableOnScreenDisplay`:  boolean, false by default
 
+# Track progress
+An `onProgress` callback is called every second, with an object containing `position`, `duration` and `playStatus` (either `playing`, `paused` or `error`).
+
+Example:
+```
+layer.onProgress( (info) => {
+	console.log(`layer is at ${info.position} / ${info.duration}; currently ${info.status}`);
+	// will output something like: layer is at 2500 / 10000; currently playing
+})
+```
 
 # Properties
 ## Get duration of current track/movie in seconds
