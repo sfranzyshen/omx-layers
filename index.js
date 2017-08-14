@@ -184,7 +184,7 @@ class OmxInstance {
 				 })
 				 .catch( () => {
 					 console.error('error getting isPlaying status');
-					 callback({ 'status': error });
+					 callback({ status: 'error' });
 				 });
 		}, this.progressInterval);
 	}
