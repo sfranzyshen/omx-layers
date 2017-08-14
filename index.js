@@ -127,14 +127,14 @@ class OmxInstance {
 		});
 	}
 
-	getIsPlaying () {
+	getPlayStatus () {
 		return new Promise( (resolve, reject) => {
 			exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
-				if (error) reject();
+				if (error) resolve('stopped');
 				if (stdout.indexOf('Playing') > -1) {
-					resolve(true);
+					resolve('playing');
 				} else {
-					resolve(false);
+					resolve('paused');
 				}
 			});
 		});
@@ -166,23 +166,23 @@ class OmxInstance {
 	onProgress (callback) {
 		console.log('add new progress handler for layer', this.layer);
 		this.progressHandler = setInterval( () => {
-			this.getIsPlaying()
-				 .then( (isPlaying) => {
-					 if (isPlaying) {
+			this.getPlayStatus()
+				 .then( (playStatus) => {
+					 if (isPlaying !== 'stopped') {
 						 this.getCurrentPosition()
 						 	.then( (position) => {
 								this.getDuration()
 									.then( (duration) => {
-										callback({ position: position, duration: duration });
+										callback({ position: position, duration: duration, status: playStatus });
 									});
 							});
 					 } else {
-						 callback({ 'playing': false });
+						 callback({ status: playStatus });
 					 }
 				 })
 				 .catch( () => {
 					 console.error('error getting isPlaying status');
-					 callback({ 'status': 'error', 'playing': false });
+					 callback({ 'status': error });
 				 });
 		}, this.progressInterval);
 	}
