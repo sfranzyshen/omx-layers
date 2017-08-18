@@ -232,6 +232,10 @@ class OmxInstance {
 			args.push('-b');
 		}
 
+		if (settings.backgroundARGB) {
+			args.push('-b0x' + settings.backgroundARGB);
+		}
+
 		if (settings.disableKeys === true) { //defaults to  false
 			args.push('--no-keys')
 		}
