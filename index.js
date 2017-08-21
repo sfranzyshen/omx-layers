@@ -10,13 +10,13 @@ class OmxInstance {
 	constructor(options) {
 		this.options = options;
 
-		if (options && options.layer) {
+		if (options && typeof options.layer === 'number') {
 			this.dbusDest = DBUS_DEST_DEFAULT + '_layer' + options.layer;
 			this.layer = options.layer;
 			console.log('setup for layered mode');
 		} else {
 			this.dbusDest = DBUS_DEST_DEFAULT;
-			this.layer = 1;
+			this.layer = 0;
 			console.log('not layered mode');
 		}
 		console.log('dbus name will be', this.dbusDest);
