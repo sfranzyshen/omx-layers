@@ -286,9 +286,9 @@ class OmxInstance {
 		console.log('finalOpenCommand:', finalOpenCommand);
 
 	  exec(finalOpenCommand, (error, stdout, stderr) => {
+			this.cancelProgressHandlerIfActive();
 			doneCallback();
 			console.log('omxpipe done for layer', this.layer);
-  		this.cancelProgressHandlerIfActive();
 	  	console.log(stdout);
 	  });
 	  exec(' . > omxpipe'+this.layer, (error, stdout, stderr) => {
