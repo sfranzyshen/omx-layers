@@ -69,15 +69,17 @@ class OmxInstance {
 		});
 	}
 
-	stop () {
+	stop (callback) {
 		exec(this.dbusCommand('stop'), (error, stdout, stderr) => {
 			this.cancelProgressHandlerIfActive();
+			if (callback) callback();
 		});
 	}
 
-	quit () {
+	quit (callback) {
 		exec(this.dbusCommand('quit'), (error, stdout, stderr) => {
 			this.cancelProgressHandlerIfActive();
+			if (callback) callback();
 	  });
 	}
 
