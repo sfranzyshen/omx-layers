@@ -5,6 +5,8 @@ var path = require('path');
 const DBUS_COMMAND = "bash "+__dirname+"/dbus.sh ";
 const DBUS_DEST_DEFAULT = 'org.mpris.MediaPlayer2.omxplayer';
 
+const MAX_START_ATTEMPTS = 300;
+
 class OmxInstance {
 
 	constructor(options) {
@@ -41,7 +43,7 @@ class OmxInstance {
 	cancelProgressHandlerIfActive() {
 		if (this.progressHandler) {
 			clearInterval(this.progressHandler);
-			console.log('progressHandler cancelled');
+			console.info('progressHandler cancelled');
 		}
 	}
 
@@ -88,8 +90,9 @@ class OmxInstance {
 
 	setAbsolute (position) {
 		//position in seconds from start; //positions larger than the duration will stop the player;
-		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), (error, stdout, stderr) => {});
-		this.overridePosition = position*1000000;
+		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), (error, stdout, stderr) => {
+			if (error) console.error('setAbsolute() error:', error);
+		});
 	}
 
 	setVolume (volume) {
@@ -110,16 +113,11 @@ class OmxInstance {
 
 	getCurrentPosition () {
 		return new Promise( (resolve, reject) => {
-			if (typeof(this.overridePosition) == 'number') {
-				resolve(this.overridePosition);
-				this.overridePosition = null;
-			} else {
 				exec(this.dbusCommand('getposition'), (error, stdout, stderr) => {
 					if (error) reject();
 					let position = parseInt(stdout) / 1000; // microseconds to milliseconds
 					resolve(position);
 				});
-			}
 		});
 	}
 
@@ -141,15 +139,15 @@ class OmxInstance {
 
 	getDuration () {
 		return new Promise( (resolve, reject) => {
-			if (this.duration) {
-				resolve(this.duration);
+			if (this.cachedDuration) {
+				resolve(this.cachedDuration);
 			} else {
 				exec( this.dbusCommand('getduration'), (error, stdout, stderr) => {
 					if (error) reject();
 
 					let duration = parseInt(stdout) / 1000; // microseconds to milliseconds
 					resolve(duration);
-					this.duration = duration; // cache last known duration
+					this.cachedDuration = duration; // cache last known duration
 				});
 			}
 		});
@@ -168,17 +166,13 @@ class OmxInstance {
 			if (this.shouldBePlaying) {
 				this.getPlayStatus()
 				.then( (playStatus) => {
-					if (playStatus !== 'stopped') {
-						this.getCurrentPosition()
-						.then( (position) => {
-							this.getDuration()
-							.then( (duration) => {
-								callback({ position: position, duration: duration, status: playStatus });
-							});
+					this.getCurrentPosition()
+					.then( (position) => {
+						this.getDuration()
+						.then( (duration) => {
+							callback({ position: position, duration: duration, status: playStatus });
 						});
-					} else {
-						callback({ status: playStatus });
-					}
+					});
 				})
 				.catch( (err) => {
 					console.error('error getting playStatus:', err);
@@ -196,21 +190,26 @@ class OmxInstance {
 	}
 
 	waitTillPlaying (callback) {
-		console.log('waitTillPlaying');
-		let countAttempts = 0;
-		let interval;
-		interval = setInterval( () => {
-			countAttempts++;
-			exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
-				if (error) {
-					console.log('error on getplaystus:', error);
-				} else {
-					console.log('getplaystatus result after', countAttempts, ':', stdout);
-					clearInterval(interval);
-					callback();
-				}
-			});
-		}, 1000);
+		console.log('waitTillPlaying()');
+		return new Promise( (resolve, reject) => {
+			let countAttempts = 0;
+			let interval = setInterval( () => {
+				countAttempts++;
+				exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
+					if (error) {
+						if (countAttempts > MAX_START_ATTEMPTS) {
+							console.error(`too many attempts (${countAttempts}) to get playstatus after start!`);
+							clearInterval(interval);
+							reject(error);
+						}
+					} else {
+						console.info(`getplaystatus success after ${countAttempts} attempts: ${stdout}`);
+						clearInterval(interval);
+						resolve();
+					}
+				});
+			}, 10);
+		});
 	}
 
 	open (path, doneCallback, holdMode) {
@@ -290,18 +289,23 @@ class OmxInstance {
 				console.log('omxpipe done for layer', this.layer);
 				console.log(stdout);
 				this.shouldBePlaying = false;
+				this.cachedDuration = null;
 			});
 			exec(' . > omxpipe'+this.layer, (error, stdout, stderr) => {
-				this.waitTillPlaying( () => {
-					console.log('started ok');
-					this.shouldBePlaying = true;
-					this.onStart(); // apply callback
-					if (holdMode) {
-						console.log('holdMode ON, so immediately pause and hide');
-						this.pause();
-						this.setVisibility(false);
-					}
-				});
+				this.waitTillPlaying()
+					.then( () => {
+						console.info('confirmed started ok');
+						this.shouldBePlaying = true;
+						this.onStart(); // apply callback
+						if (holdMode) {
+							console.log('holdMode ON, so immediately pause and hide');
+							this.pause();
+							this.setVisibility(false);
+						}
+					})
+					.catch ( () => {
+						console.error('failed to confirm clip start!');
+					});
 			});
 		}
 
