@@ -175,8 +175,8 @@ class OmxInstance {
 					});
 				})
 				.catch( (err) => {
-					console.error('error getting playStatus:', err);
-					callback({ status: 'error' });
+					console.warn('error getting playStatus:', err);
+					// do NOT send error via callback!
 				});
 			}
 		}, this.progressInterval);
