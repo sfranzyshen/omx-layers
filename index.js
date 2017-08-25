@@ -44,6 +44,7 @@ class OmxInstance {
 		if (this.progressHandler) {
 			clearInterval(this.progressHandler);
 			console.info('progressHandler cancelled');
+			this.progressHandler = null;
 		}
 	}
 
@@ -125,7 +126,7 @@ class OmxInstance {
 		return new Promise( (resolve, reject) => {
 			exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
 				if (error) {
-					console.error('error from getplaystatus:', error);
+					console.error('getPlayStatus() error:', error);
 					reject(error);
 				}
 				if (stdout.indexOf('Playing') > -1) {
@@ -175,7 +176,7 @@ class OmxInstance {
 					});
 				})
 				.catch( (err) => {
-					console.warn('error getting playStatus:', err);
+					console.warn('onProgress: error getting playStatus:', err);
 					// do NOT send error via callback!
 				});
 			}
@@ -187,6 +188,10 @@ class OmxInstance {
 		if (callback) {
 			callback();
 		}
+	}
+
+	isBusy() {
+		return this.shouldBePlaying;
 	}
 
 	waitTillPlaying (callback) {
