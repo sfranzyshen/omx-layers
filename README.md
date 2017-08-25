@@ -76,18 +76,6 @@ If your player appears to quit video files without even trying to play them, you
 * `disableKeys`: boolean, false by default
 * `disableOnScreenDisplay`:  boolean, false by default
 
-# Track progress
-An `onProgress` callback is called every second (by default) or however often you need (just set `progressInterval` in settings).
-
-The callback sends a single object containing `position`, `duration` and `playStatus` (either `playing`, `paused` or `error`).
-
-Example:
-```
-layer.onProgress( (info) => {
-	console.log(`layer is at ${info.position} / ${info.duration}; currently ${info.status}`);
-	// will output something like: layer is at 2500 / 10000; currently playing
-})
-```
 
 # Properties
 ## Get duration of current track/movie in seconds
@@ -112,6 +100,27 @@ Open and start a clip at the given path. If you try to open another clip while o
 
 ## Jump to point in file/seek relative to start point (absolute)
 `layer.seekAbsolute(milliseconds);`
+
+# Callbacks
+
+## onStart
+It may take a few milliseconds for the clip to actually start playing after you call `layer.open`. The `onStart` callback is fired once the clip has been confirmed to have actually started playback.
+
+## onDone
+This is called when the clip finishes playing (and the omxplayer instance stops/quits).
+
+## onProgress
+The `onProgress` callback is called every second (by default) or however often you need (just set `progressInterval` in settings).
+
+The callback sends a single object containing `position`, `duration` and `playStatus` (either `playing`, `paused` or `error`).
+
+Example:
+```
+layer.onProgress( (info) => {
+	console.log(`layer is at ${info.position} / ${info.duration}; currently ${info.status}`);
+	// will output something like: layer is at 2500 / 10000; currently playing
+})
+```
 
 ## Stop playing
 `layer.stop();`

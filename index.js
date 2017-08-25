@@ -190,12 +190,20 @@ class OmxInstance {
 		}
 	}
 
+	onDone (callback) {
+		console.log('onDone event');
+		if (callback) {
+			callback();
+		}
+	}
+
 	isBusy() {
 		return this.shouldBePlaying;
 	}
 
 	waitTillPlaying (callback) {
 		console.log('waitTillPlaying()');
+		let initTime = Date.now();
 		return new Promise( (resolve, reject) => {
 			let countAttempts = 0;
 			let interval = setInterval( () => {
@@ -208,16 +216,17 @@ class OmxInstance {
 							reject(error);
 						}
 					} else {
-						console.info(`getplaystatus success after ${countAttempts} attempts: ${stdout}`);
+						let elapsed = Date.now() - initTime;
+						console.info(`getplaystatus success after ${elapsed}ms, ${countAttempts} attempts: ${stdout}`);
 						clearInterval(interval);
-						resolve();
+						resolve(elapsed);
 					}
 				});
 			}, 10);
 		});
 	}
 
-	open (path, doneCallback, holdMode) {
+	open (path, holdMode) {
 		console.log('OmxInstance open() for layer #', this.layer, 'holdMode?', holdMode);
 		let settings = this.options || {};
 		let args = [];
@@ -292,20 +301,20 @@ class OmxInstance {
 			exec(finalOpenCommand, (error, stdout, stderr) => {
 				// This block executes on clip end...
 				this.cancelProgressHandlerIfActive();
-				if (doneCallback) doneCallback();
+				this.onDone(); // apply callback, if it exists
 				console.log('omxpipe done for layer', this.layer);
 				console.log(`final output from omxplayer: \n${stdout}\n.`);
 				this.shouldBePlaying = false;
 				this.cachedDuration = null;
-			});
+			});å
 
 			exec(' . > omxpipe'+this.layer, (error, stdout, stderr) => {
 				// This block executes as soon as pipe is ready...
 				this.waitTillPlaying()
-					.then( () => {
+					.then( (elapsed) => {
 						console.info('confirmed started ok');
 						this.shouldBePlaying = true;
-						this.onStart(); // apply callback
+						this.onStart(); // apply callback, if it exists
 						if (holdMode) {
 							console.log('holdMode ON, so immediately pause and hide');
 							this.pause();
