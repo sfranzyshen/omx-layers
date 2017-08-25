@@ -184,17 +184,11 @@ class OmxInstance {
 	}
 
 	onStart (callback) {
-		console.log('onStart event');
-		if (callback) {
-			callback();
-		}
+		return callback;
 	}
 
 	onDone (callback) {
-		console.log('onDone event');
-		if (callback) {
-			callback();
-		}
+		return callback;
 	}
 
 	isBusy() {
@@ -301,7 +295,7 @@ class OmxInstance {
 			exec(finalOpenCommand, (error, stdout, stderr) => {
 				// This block executes on clip end...
 				this.cancelProgressHandlerIfActive();
-				this.onDone(); // apply callback, if it exists
+				this.onDone().apply();
 				console.log('omxpipe done for layer', this.layer);
 				console.log(`final output from omxplayer: \n${stdout}\n.`);
 				this.shouldBePlaying = false;
@@ -314,7 +308,7 @@ class OmxInstance {
 					.then( (elapsed) => {
 						console.info('confirmed started ok');
 						this.shouldBePlaying = true;
-						this.onStart(); // apply callback, if it exists
+						this.onStart().apply();
 						if (holdMode) {
 							console.log('holdMode ON, so immediately pause and hide');
 							this.pause();
