@@ -283,15 +283,19 @@ class OmxInstance {
 		if (this.shouldBePlaying) {
 			console.error('omx-layers was instructed to open, but playback is (?) already in progress');
 		} else {
+
 			exec(finalOpenCommand, (error, stdout, stderr) => {
+				// This block executes on clip end...
 				this.cancelProgressHandlerIfActive();
-				doneCallback();
+				if (doneCallback) doneCallback();
 				console.log('omxpipe done for layer', this.layer);
-				console.log(stdout);
+				console.log(`final output from omxplayer: \n${stdout}\n.`);
 				this.shouldBePlaying = false;
 				this.cachedDuration = null;
 			});
+
 			exec(' . > omxpipe'+this.layer, (error, stdout, stderr) => {
+				// This block executes as soon as pipe is ready...
 				this.waitTillPlaying()
 					.then( () => {
 						console.info('confirmed started ok');
