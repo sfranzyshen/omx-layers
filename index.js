@@ -306,7 +306,7 @@ class OmxInstance {
 				console.log(`final output from omxplayer: \n${stdout}\n.`);
 				this.shouldBePlaying = false;
 				this.cachedDuration = null;
-			});å
+			});
 
 			exec(' . > omxpipe'+this.layer, (error, stdout, stderr) => {
 				// This block executes as soon as pipe is ready...
