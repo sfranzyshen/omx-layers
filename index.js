@@ -52,25 +52,23 @@ class OmxInstance {
 	}
 
 	resume () {
-		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
-			// Ignore if already playing
-			if (stdout.indexOf("Paused")>-1) {
-				this.togglePlay();
-			}
+		exec(this.dbusCommand('play'), (error, stdout, stderr) => {
+			if (error) console.error('resume() error:', error);
+			console.log('should play/resume/restart');
 		});
 	}
 
 	pause () {
-		exec(this.dbusCommand('getplaystatus'), (error, stdout, stderr) => {
-			// Ignore if already paused
-			if (stdout.indexOf("Playing")>-1) {
-				this.togglePlay();
-			}
+		exec(this.dbusCommand('pause'), (error, stdout, stderr) => {
+			if (error) console.error('pause() error:', error);
+			console.log('should pause');
 		});
 	}
 
 	stop (callback) {
 		exec(this.dbusCommand('stop'), (error, stdout, stderr) => {
+			if (error) console.error('stop() error:', error);
+			console.log('should stop');
 			this.cancelProgressHandlerIfActive();
 			if (callback) callback();
 		});
@@ -83,16 +81,12 @@ class OmxInstance {
 	  });
 	}
 
-	togglePlay () {
-		exec(this.dbusCommand('toggleplay'), (error, stdout, stderr) => {});
-	}
-
-	seek (offset) {
+	seekRelative (offset) {
 		//seek offset in seconds; relative from current position; negative values will cause a jump back;
 		exec(this.dbusCommand('seek ' +Math.round(offset*1000000)), (error, stdout, stderr) => {});
 	}
 
-	setPosition (position) {
+	setAbsolute (position) {
 		//position in seconds from start; //positions larger than the duration will stop the player;
 		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), (error, stdout, stderr) => {});
 		this.overridePosition = position*1000000;
@@ -171,24 +165,26 @@ class OmxInstance {
 	onProgress (callback) {
 		console.log('add new progress handler for layer', this.layer);
 		this.progressHandler = setInterval( () => {
-			this.getPlayStatus()
-				 .then( (playStatus) => {
-					 if (playStatus !== 'stopped') {
-						 this.getCurrentPosition()
-						 	.then( (position) => {
-								this.getDuration()
-									.then( (duration) => {
-										callback({ position: position, duration: duration, status: playStatus });
-									});
+			if (this.shouldBePlaying) {
+				this.getPlayStatus()
+				.then( (playStatus) => {
+					if (playStatus !== 'stopped') {
+						this.getCurrentPosition()
+						.then( (position) => {
+							this.getDuration()
+							.then( (duration) => {
+								callback({ position: position, duration: duration, status: playStatus });
 							});
-					 } else {
-						 callback({ status: playStatus });
-					 }
-				 })
-				 .catch( (err) => {
-					 console.error('error getting playStatus:', err);
-					 callback({ status: 'error' });
-				 });
+						});
+					} else {
+						callback({ status: playStatus });
+					}
+				})
+				.catch( (err) => {
+					console.error('error getting playStatus:', err);
+					callback({ status: 'error' });
+				});
+			}
 		}, this.progressInterval);
 	}
 
@@ -285,23 +281,30 @@ class OmxInstance {
 		let finalOpenCommand = command+' '+args.join(' ')+' < omxpipe'+this.layer;
 		console.log('finalOpenCommand:', finalOpenCommand);
 
-	  exec(finalOpenCommand, (error, stdout, stderr) => {
-			this.cancelProgressHandlerIfActive();
-			doneCallback();
-			console.log('omxpipe done for layer', this.layer);
-	  	console.log(stdout);
-	  });
-	  exec(' . > omxpipe'+this.layer, (error, stdout, stderr) => {
-			this.waitTillPlaying( () => {
-				console.log('started ok');
-				this.onStart();
-				if (holdMode) {
-					console.log('holdMode ON, so immediately pause and hide');
-					this.pause();
-					this.setVisibility(false);
-				}
+		if (this.shouldBePlaying) {
+			console.error('omx-layers was instructed to open, but playback is (?) already in progress');
+		} else {
+			exec(finalOpenCommand, (error, stdout, stderr) => {
+				this.cancelProgressHandlerIfActive();
+				doneCallback();
+				console.log('omxpipe done for layer', this.layer);
+				console.log(stdout);
+				this.shouldBePlaying = false;
 			});
-		});
+			exec(' . > omxpipe'+this.layer, (error, stdout, stderr) => {
+				this.waitTillPlaying( () => {
+					console.log('started ok');
+					this.shouldBePlaying = true;
+					this.onStart(); // apply callback
+					if (holdMode) {
+						console.log('holdMode ON, so immediately pause and hide');
+						this.pause();
+						this.setVisibility(false);
+					}
+				});
+			});
+		}
+
 
 	}
 
