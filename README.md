@@ -1,6 +1,8 @@
 
 # omx-layers (Node.js)
-An interface for Node.js allowing you to layer multiple [omxplayer](https://github.com/popcornmix/omxplayer) instances and control them via D-Bus.
+An interface for Node.js allowing you to layer multiple [omxplayer](https://github.com/popcornmix/omxplayer) instances and control them in-process via the low-latency interprocess communication protocol, D-Bus.
+
+You don't have to know anything about D-Bus. Just send commands using JavaScript, and the library handles the communication and logic internally.
 
 # How to Install
 ```
@@ -47,7 +49,7 @@ for (var i=0; i<numLayers; i++) {
 			blackBackground: true,
 			disableKeys: true,
 			disableOnScreenDisplay: true,
-			layer: i+1
+			layer: i
 		})
 	);
 }
@@ -55,22 +57,29 @@ for (var i=0; i<numLayers; i++) {
 ```
 Find the clip with the layer you want, and play:
 ```
+// Assume that an array has been set up with 2 layers.
 // Let's say you wanted to play a clip on layer 2...
-if (layer[1].getLayer() == 2) {
-	layer[1].open('foreground-clip.mp4');
-}
+layer[1].open('foreground-clip.mp4');
 ```
+
+## How many layers can I open?
+This seems to be very dependent on file sizes, resolutions and data rates for the video files.
+
+If your player appears to quit video files without even trying to play them, you should try to increase the memory available to the GPU using `sudo rasp-config` > Advanced Options > Memory Split. 128MB should be good; 256MB might be better.
+
 
 # Options
 * `audioOutput`: 'hdmi' | 'local' | 'both'
 * `blackBackground`: boolean, false by default (careful enabling this when layering, or you might get strange intermittent screen blanking)
 * `backgroundARGB`: a hexadecimal colour value for Alpha, Red, Green, Blue - this is an alternative to using the default black. For example, if you want a full white background, use `ffffffff` and for full red use `ffff0000`, etc. This **should only be applied to layer 1**, not higher layers, in order to avoid flickering.
-* `layer`: 1-infinity (2 is probably enough!); if omitted then clips will automatically player on layer 1
+* `layer`: 1-infinity (2 is probably enough!); if omitted then clips will automatically player on layer 0
 * `disableKeys`: boolean, false by default
 * `disableOnScreenDisplay`:  boolean, false by default
 
 # Track progress
-An `onProgress` callback is called every second, with an object containing `position`, `duration` and `playStatus` (either `playing`, `paused` or `error`).
+An `onProgress` callback is called every second (by default) or however often you need (just set `progressInterval` in settings).
+
+The callback sends a single object containing `position`, `duration` and `playStatus` (either `playing`, `paused` or `error`).
 
 Example:
 ```
@@ -82,54 +91,43 @@ layer.onProgress( (info) => {
 
 # Properties
 ## Get duration of current track/movie in seconds
-``layer.getCurrentDuration();``
+`layer.getCurrentDuration();`
 
 ## Get position of current track/movie in seconds
-``layer.getCurrentPosition();``
+`layer.getCurrentPosition();`
 
 Get current position via D-Bus (if currently playing) in milliseconds.
 
 ## Get volume as fraction of max (0.0 - 1.0)
-``layer.getCurrentVolume();``
+`layer.getCurrentVolume();`
 
 # Methods
 
+## Open (play) a new clip
+`layer.open(path)`
+Open and start a clip at the given path. If you try to open another clip while one is already playing, this will be logged and ignored.
+
 ## Jump to point in file/seek relative to current position (-Inf to +Inf)
-``layer.seek(milliseconds);``
+`layer.seekRelative(milliseconds);`
 
 ## Jump to point in file/seek relative to start point (absolute)
-``layer.setPosition(milliseconds);``
+`layer.seekAbsolute(milliseconds);`
 
 ## Stop playing
-``layer.stop();``
+`layer.stop();`
+This seems to be the same thing as quitting! See https://github.com/popcornmix/omxplayer/issues/564
 
 ## Quit omxplayer
-``layer.quit();``
+`layer.quit();`
 
 ## Pause omxplayer
-``layer.pause();``
-
-Note: Unlike hitting the spacebar, this method pauses only when playing and remains paused when already paused.
+`layer.pause();`
+Pauses the clip; ignored if already paused.
 
 ## Resume playing
-``layer.play();``
+`layer.resume();`
+Resumes a clip if paused; ignored if already playing, and will generate an error in the logs if clip is already stopped/done but is essentially ignored.
 
-Note: Unlike hitting the spacebar, this method starts playing only when paused and remains playing when already playing.
-
-## Toggle pause/play
-``layer.togglePlay();``
-
-Note: Same function as hitting spacebar in omxplayer.
-
-## Volume up
-``layer.volumeUp();``
-
-Note: Same function as "+" key in omxplayer.
-
-## Volume down
-``layer.volumeDown();``
-
-Note: Same function as "-" key in omxplayer.
-
-## Set volume to a fraction of the max volume (0.0 - 1.0)
-``layer.setVolume(vol);``
+## Set volume
+`layer.setVolume(vol);`
+Set volume to a fraction of the max volume (0.0 - 1.0)
