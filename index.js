@@ -197,6 +197,7 @@ class OmxInstance {
 
 	waitTillPlaying (callback) {
 		console.log('waitTillPlaying()');
+		this.shouldBePlaying = true;
 		let initTime = Date.now();
 		return new Promise( (resolve, reject) => {
 			let countAttempts = 0;
@@ -206,6 +207,7 @@ class OmxInstance {
 					if (error) {
 						if (countAttempts > MAX_START_ATTEMPTS) {
 							console.error(`too many attempts (${countAttempts}) to get playstatus after start!`);
+							this.shouldBePlaying = false;
 							clearInterval(interval);
 							reject(error);
 						}
@@ -307,7 +309,6 @@ class OmxInstance {
 				this.waitTillPlaying()
 					.then( (elapsed) => {
 						console.info('confirmed started ok');
-						this.shouldBePlaying = true;
 						if (this.onStartCallback) this.onStartCallback.apply();
 						if (holdMode) {
 							console.log('holdMode ON, so immediately pause and hide');
