@@ -85,13 +85,13 @@ class OmxInstance {
 	}
 
 	seekRelative (offset) {
-		//seek offset in seconds; relative from current position; negative values will cause a jump back;
-		exec(this.dbusCommand('seek ' +Math.round(offset*1000000)), (error, stdout, stderr) => {});
+		//seek offset in milliseconds; relative from current position; negative values will cause a jump back;
+		exec(this.dbusCommand('seek ' +Math.round(offset*1000)), (error, stdout, stderr) => {});
 	}
 
 	setAbsolute (position) {
-		//position in seconds from start; //positions larger than the duration will stop the player;
-		exec(this.dbusCommand('setposition '+Math.round(position*1000000)), (error, stdout, stderr) => {
+		//position in milliseconds from start; //positions larger than the duration will stop the player;
+		exec(this.dbusCommand('setposition '+Math.round(position*1000)), (error, stdout, stderr) => {
 			if (error) console.error('setAbsolute() error:', error);
 		});
 	}
