@@ -53,7 +53,7 @@ for (var i=0; i<numPlayers; i++) {
 	players.push(
 		new omx({
 			audioOutput: 'local',
-			blackBackground: true,
+			blackBackground: i === 0,
 			disableKeys: true,
 			disableOnScreenDisplay: true,
 			player: i,
@@ -82,6 +82,7 @@ If your player appears to quit video files without even trying to play them, you
 * `layer`: 1-infinity (2 is probably enough!); if omitted then clips will automatically player on layer 0
 * `disableKeys`: boolean, false by default
 * `disableOnScreenDisplay`:  boolean, false by default
+* `progressInterval`: milliseconds, 1000 by default
 
 # Properties
 ## Get duration of current track/movie in seconds
