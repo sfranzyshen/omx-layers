@@ -27,7 +27,7 @@ make -j$(nproc)
 sudo make install
 ```
 # Examples
-## Single player only (player: 0  & layer: 0)
+## Single player only
 ```
 const omx = require('omx-players');
 
@@ -83,7 +83,7 @@ If your player appears to quit video files without even trying to play them, you
 * `loop`: boolean, false by default
 * `layer`: 1 - ?, if omitted clips will automatically play on layer 0
 * `alpha`: 0 - 255, if omitted clips will automatically play full alpha (255)
-* `volume`: -6000 to 0 millibels, if omitted clips will automatically play full volume (0)
+* `volume`: 0.0 to 1.0 millibels, if omitted clips will automatically play full volume (1.0)
 * `disableKeys`: boolean, false by default
 * `disableOnScreenDisplay`:  boolean, false by default
 * `disableGhostbox`:  boolean, false by default
