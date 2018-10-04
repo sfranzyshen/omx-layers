@@ -15,15 +15,21 @@ class OmxInstance {
 		if (options && typeof options.layer === 'number') {
 			this.layer = options.layer;
 			console.log('setup layer ', options.layer);
+		} else {
+			this.layer = 0;
+			console.log('setup default layer 0');
 		}
 		
 		if (options && typeof options.player === 'number') {
 			this.dbusDest = DBUS_DEST_DEFAULT + '_player' + options.player;
-			console.log('setup for multi mode');
+			this.player = options.player;
+			console.log('setup for multi-mode');
 		} else {
 			this.dbusDest = DBUS_DEST_DEFAULT;
-			console.log('not layered mode');
+			this.player = 0;
+			console.log('setup for single-mode');
 		}
+		
 		console.log('dbus name will be', this.dbusDest);
 
 		exec('mkfifo omxpipe'+this.player);
@@ -165,7 +171,7 @@ class OmxInstance {
 		});	}
 
 	onProgress (callback) {
-		console.log('add new progress handler for layer', this.layer);
+		console.log('add new progress handler for layer', this.player);
 		this.progressHandler = setInterval( () => {
 			if (this.shouldBePlaying) {
 				this.getPlayStatus()
@@ -226,7 +232,7 @@ class OmxInstance {
 	}
 
 	open (path, holdMode) {
-		console.log('OmxInstance open() for layer #', this.layer, 'holdMode?', holdMode);
+		console.log('OmxInstance open() for player #', this.player, 'holdMode?', holdMode);
 		let settings = this.options || {};
 		let args = [];
 		let command = 'omxplayer';
@@ -267,19 +273,28 @@ class OmxInstance {
 			args.push('"'+settings.subtitlePath+'"');
 		}
 
-		if (settings.startAt){
+		if (settings.startPos){
 			args.push('--pos');
-			args.push(''+settings.startAt+'');
+			args.push(''+settings.startPos+'');
 		}
-
+		
 		if (settings.layer) {
 			args.push('--layer');
 			args.push(settings.layer);
 		}
-
-		if (holdMode) {
+		
+		if (settings.volume) {
+			args.push('--vol');
+			args.push(settings.volume);
+		}
+		
+		if (settings.alpha || holdMode) {
 			args.push('--alpha');
-			args.push(0);
+			if (holdMode) {
+				args.push(0);
+			} else {
+				args.push(settings.alpha);
+			}
 		}
 
 		args.push('--dbus_name');
@@ -290,24 +305,24 @@ class OmxInstance {
 			args.push(settings.aspectMode);
 		}
 
-		let finalOpenCommand = command+' '+args.join(' ')+' < omxpipe'+this.layer;
+		let finalOpenCommand = command+' '+args.join(' ')+' < omxpipe'+this.player;
 		console.log('finalOpenCommand:', finalOpenCommand);
 
 		if (this.shouldBePlaying) {
-			console.error('omx-layers was instructed to open, but playback is (?) already in progress');
+			console.error('playback is (?) already in progress ... see openuri instead');
 		} else {
 
 			exec(finalOpenCommand, (error, stdout, stderr) => {
 				// This block executes on clip end...
 				this.cancelProgressHandlerIfActive();
 				if (this.onDoneCallback) this.onDoneCallback.apply();
-				console.log('omxpipe done for layer', this.layer);
+				console.log('omxpipe done for layer', this.player);
 				console.log(`final output from omxplayer: \n${stdout}\n.`);
 				this.shouldBePlaying = false;
 				this.cachedDuration = null;
 			});
 
-			exec(' . > omxpipe'+this.layer, (error, stdout, stderr) => {
+			exec(' . > omxpipe'+this.player, (error, stdout, stderr) => {
 				// This block executes as soon as pipe is ready...
 				this.waitTillPlaying()
 					.then( (elapsed) => {
