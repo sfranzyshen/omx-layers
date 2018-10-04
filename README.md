@@ -16,7 +16,7 @@ Remember that the `omxplayer` only works on the Raspberry Pi (and similar hardwa
 sudo apt-get install omxplayer
 ```
 ## Update omxplayer
-take advantage of newer functions available in the lattest versions of the omxplayer. This requires removing the default Raspbian version of omxplayer and installing the latest version ... See [https://github.com/popcornmix/omxplayer](https://github.com/popcornmix/omxplayer#omxplayer1----raspberry-pi-command-line-omx-player)
+take advantage of newer functions available in the latest versions of the omxplayer. This requires removing the default Raspbian version of omxplayer and installing the latest version ... See [https://github.com/popcornmix/omxplayer](https://github.com/popcornmix/omxplayer#omxplayer1----raspberry-pi-command-line-omx-player)
 ```
 sudo apt-get remove omxplayer
 git clone https://github.com/popcornmix/omxplayer.git
@@ -27,7 +27,7 @@ make -j$(nproc)
 sudo make install
 ```
 # Examples
-## Single player only
+## Single player only (player: 0  & layer: 0)
 ```
 const omx = require('omx-players');
 
@@ -40,9 +40,7 @@ let player = new omx({
 ```
 Then play a clip like this:
 ```
-player.open('myclip.mp4', () => {
-	console.log('playback finished!');
-});
+player.open('foreground-clip.mp4', false);
 ```
 
 ## Multiple players, multiple layers
@@ -58,6 +56,7 @@ for (var i=0; i<numPlayers; i++) {
 			blackBackground: true,
 			disableKeys: true,
 			disableOnScreenDisplay: true,
+			player: i,
 			layer: i
 		})
 	);
@@ -68,11 +67,11 @@ Find the clip with the player you want, and play:
 ```
 // Assume that an array has been set up with 2 players.
 // Let's say you wanted to play a clip on player 2 ...
-players[1].open('foreground-clip.mp4');
+players[1].open('foreground-clip.mp4', true);
 ```
 
 ## How many players can I open?
-This seems to be very dependent on file sizes, resolutions and data rates for the video files.
+This seems to be very dependent on the resolutions and data rates for the video files. file sizes also plays a role.
 
 If your player appears to quit video files without even trying to play them, you should try to increase the memory available to the GPU using `sudo rasp-config` > Advanced Options > Memory Split. 128MB should be good; 256MB might be better.
 
