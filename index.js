@@ -11,19 +11,22 @@ class OmxInstance {
 
 	constructor(options) {
 		this.options = options;
-
+		
 		if (options && typeof options.layer === 'number') {
-			this.dbusDest = DBUS_DEST_DEFAULT + '_layer' + options.layer;
 			this.layer = options.layer;
-			console.log('setup for layered mode');
+			console.log('setup layer ', options.layer);
+		}
+		
+		if (options && typeof options.player === 'number') {
+			this.dbusDest = DBUS_DEST_DEFAULT + '_player' + options.player;
+			console.log('setup for multi mode');
 		} else {
 			this.dbusDest = DBUS_DEST_DEFAULT;
-			this.layer = 0;
 			console.log('not layered mode');
 		}
 		console.log('dbus name will be', this.dbusDest);
 
-		exec('mkfifo omxpipe'+this.layer);
+		exec('mkfifo omxpipe'+this.player);
 
 		if (options && options.progressInterval) {
 			console.log('custom progress interval:', options.progressInterval);
