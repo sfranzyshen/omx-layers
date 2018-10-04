@@ -77,12 +77,18 @@ If your player appears to quit video files without even trying to play them, you
 
 # Options
 * `audioOutput`: 'hdmi' | 'local' | 'both'
-* `blackBackground`: boolean, false by default (careful enabling this when layering, or you might get strange intermittent screen blanking)
-* `backgroundARGB`: a hexadecimal colour value for Alpha, Red, Green, Blue - this is an alternative to using the default black. For example, if you want a full white background, use `ffffffff` and for full red use `ffff0000`, etc. This **should only be applied to layer 1**, not higher layers, in order to avoid flickering.
-* `layer`: 1-infinity (2 is probably enough!); if omitted then clips will automatically player on layer 0
+* `blackBackground`: boolean, false by default
+* `backgroundARGB`: a hexadecimal colour value for Alpha, Red, Green, Blue - this is an alternative to using the default black. 
+* `startPos`: Start position (hh:mm:ss) if omitted clips will start at 00:00:00
+* `loop`: boolean, false by default
+* `layer`: 1 - ?, if omitted clips will automatically play on layer 0
+* `alpha`: 0 - 255, if omitted clips will automatically play full alpha (255)
+* `volume`: -6000 to 0 millibels, if omitted clips will automatically play full volume (0)
 * `disableKeys`: boolean, false by default
 * `disableOnScreenDisplay`:  boolean, false by default
+* `disableGhostbox`:  boolean, false by default
 * `progressInterval`: milliseconds, 1000 by default
+* `aspectMode`: type, letterbox, fill, stretch. Default: stretch if win is specified, letterbox otherwise
 
 # Properties
 ## Get duration of current track/movie in seconds
@@ -98,8 +104,9 @@ Get current position via D-Bus (if currently playing) in milliseconds.
 
 # Methods
 ## Open (play) a new clip
-`player.open(path)`
-Open and start a clip at the given path. If you try to open another clip while one is already playing, this will be logged and ignored.
+`player.open(path, holdMode)`
+Open a clip at the given path and either start playing (default) or put in hold mode. 
+Hold mode sets the alpha to 0 and playback in a paused state.
 
 ## Jump to point in file/seek relative to current position (-Inf to +Inf)
 `player.seekRelative(milliseconds);`
