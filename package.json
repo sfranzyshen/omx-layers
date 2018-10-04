@@ -1,7 +1,7 @@
 {
-  "name": "omx-layers",
-  "version": "1.3.0",
-  "description": "Layer multiple omxplayer instances and control them via D-Bus",
+  "name": "omx-players",
+  "version": "1.0.0",
+  "description": "Multiple omxplayer instances with D-Bus control",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,15 +11,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/anselanza/omx-layers"
+    "url": "https://github.com/sfranzyshen/omx-players"
   },
   "dependencies": {},
   "keywords": [
     "omxplayer",
     "raspberry",
-    "pi",
-    "interface",
-    "gui"
+    "pi"
   ],
-  "author": "Stephen Buchanan <webtvmaster@gmail.com>"
+  "author": "Scotty Dont sfranzyshen@facebook.com>"
 }
